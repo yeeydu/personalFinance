@@ -1,11 +1,69 @@
-{% extends "layout.html" %}
+{% extends "layout.html" %} {% block title %} Index {% endblock %} {% block main%}
+<form action="/" method="post">
+<div class="container">
+  <div class="row ">
+    <div class="col-3 .col-sm-4">
+      <h5>Spences register</h5>
+      <div class="mb-3">
+        <input
+          autocomplete="off"
+          autofocus
+          class="form-control mx-auto w-auto"
+          id="item"
+          name="item"
+          placeholder="Item"
+           
+          type="text"
+        />
+      </div>
+      <div class="mb-3">
+        <input
+          autocomplete="off"
+          autofocus
+          class="form-control mx-auto w-auto"
+          id="category"
+          name="category"
+          placeholder="Category"
+          type="text"
+        />
+      </div>
+      <div class="mb-3">
+        <input
+          class="form-control mx-auto w-auto"
+          id="value"
+          name="value"
+          placeholder="Value"
+          type="number"
+         />
+      </div>
+      <button class="btn btn-primary" type="submit">Save</button>
+    </form>
 
-{% block title %}
-Index
-{% endblock %}
+      </div>
+      <div class="col-9 .col-sm-4">
+        <table class="table table-striped table-hover">
+          <thead>
+            <tr>
+              <th scope="col">Expence</th>
+              <th scope="col">Category</th>
+              <th scope="col">Value</th>
+              <th scope="col">Date</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for expenses in expenses %}
+            <tr>
+              <td>{{ expenses.item }}</td>
+              <td>{{ expenses.category }}</td>
+              <td>{{ expenses.value }}</td>
+              <td>{{ expenses.created_at.strftime('%Y-%m-%d')}}</td>
+            </tr>
+            {%endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
 
-{% block main %}
-
-<p>sdgsdçlgkçsdlkg</p>
-
+</div>
 {% endblock %}
