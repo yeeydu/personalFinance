@@ -16,3 +16,10 @@ db.init_app(app)
 
 # importing all routes form route folder personalFinance file, with blueprint
 app.register_blueprint(personalFinance)
+
+# use locale for conversion in Flask code
+@app.template_filter('conv_curr')
+def conv_curr(amount): 
+  import locale 
+  locale.setlocale(locale.LC_ALL, 'en_US.UTF-8') 
+  return locale.currency(amount)

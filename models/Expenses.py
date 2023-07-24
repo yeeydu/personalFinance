@@ -8,7 +8,7 @@ class Expenses(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     item = db.Column(db.String(100), nullable=False)
     category = db.Column(db.String(100), nullable=False)
-    value = db.Column(db.Numeric(20), nullable=False)
+    value = db.Column(db.Numeric(8,2), nullable=False)
     created_at = db.Column(db.DateTime(timezone=True), server_default=func.now())
 
     def __init__(self, item,  category, value, created_at):

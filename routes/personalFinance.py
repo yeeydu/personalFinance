@@ -20,8 +20,8 @@ def home():
 
         db.session.add(newExpence)
 
-        if item or category or value == '':
-            message = "Must fill all information"
+        if not item or not category or not value:
+            message = "You must fill all information"
             return render_template("error.html", message=message)
 
         db.session.commit()
@@ -31,8 +31,10 @@ def home():
 
     else:
         expenses = Expenses.query.all()
-        return render_template("index.html", expenses=expenses)
-
+        if expenses:
+            return render_template("index.html", expenses=expenses)
+        else:
+            return render_template("index.html")
 
 # @personalFinance.route("/register", methods=["GET", "POST"])
 # def register():
