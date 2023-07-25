@@ -9,7 +9,7 @@ personalFinance = Blueprint("personalFinance", __name__)
 
 # ROUTES
 @personalFinance.route("/", methods=["GET", "POST"])
-def home():
+def index():
     if request.method == "POST":
         item = request.form.get("item")
         category = request.form.get("category")
@@ -28,13 +28,25 @@ def home():
 
         # Redirect user to home page
         return redirect("/")
-
+    
     else:
         expenses = Expenses.query.all()
         if expenses:
             return render_template("index.html", expenses=expenses)
         else:
-            return render_template("index.html")
+            return render_template("index.html") 
+
+# delete method
+@personalFinance.route('/delete/<id>', methods=[ "POST"])
+def delete(id):
+    id = Expenses.query.get(id)
+    db.session.delete(id)
+    db.session.commit()
+
+    # Redirect user to home page
+    return redirect("/")
+
+
 
 # @personalFinance.route("/register", methods=["GET", "POST"])
 # def register():

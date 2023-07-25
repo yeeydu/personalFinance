@@ -46,6 +46,7 @@
         <table class="table table-striped table-hover">
           <thead>
             <tr>
+              <th scope="col"></th>
               <th scope="col">Expence</th>
               <th scope="col">Category</th>
               <th scope="col">Value</th>
@@ -55,10 +56,16 @@
           <tbody>
             {% for expenses in expenses %}
             <tr>
+              <td class="flex ">
+                <button class="btn  " type="submit" name="update" value="Update"><img src="static/pencil.svg" > </button>
+                <form method="post" action="{{ url_for('personalFinance.delete', id=expenses.id) }}">
+                  <button class="btn  " type="submit" name="delete" value="Delete"><img class="btn" type="submit" name="delete" src="static/trash.svg" ></button>
+               </form>
+              </td>
               <td>{{ expenses.item }}</td>
               <td>{{ expenses.category }}</td>
               <td>{{ expenses.value | conv_curr }}</td>
-              <td>{{ expenses.created_at.strftime('%Y-%m-%d')}}</td>
+              <td>{{ expenses.created_at.strftime('%d-%m-%Y')}}</td>
             </tr>
             {%endfor %}
           </tbody>
