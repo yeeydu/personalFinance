@@ -1,5 +1,5 @@
 import datetime
-from flask import Blueprint, Flask, request, render_template, redirect
+from flask import Blueprint, Flask, request, render_template, redirect, flash
 from models.Expenses import Expenses
 from data.db import db
 from sqlalchemy import engine_from_config, text
@@ -25,7 +25,7 @@ def index():
             return render_template("error.html", message=message)
 
         db.session.commit()
-
+        flash("Expense added succesfully!")
         # Redirect user to home page
         return redirect("/")
     
@@ -36,6 +36,24 @@ def index():
         else:
             return render_template("index.html") 
 
+@personalFinance.route('/update/<int:id>', methods=["GET", "POST"])
+def update(id):
+    if request.method == 'POST':
+        expenses = Expenses.query.get(id)
+        expenses.item = request.form.get("item")
+        expenses.category = request.form.get("category")
+        expenses.value = request.form.get("value")
+
+        db.session.commit()
+
+        flash("Expense updated succesfully!")
+        # Redirect user to home page
+        return redirect("/")
+        
+    else:
+        expenses = Expenses.query.get(id)
+        return render_template("update.html", expenses=expenses)
+
 # delete method
 @personalFinance.route('/delete/<id>', methods=[ "POST"])
 def delete(id):
@@ -43,6 +61,7 @@ def delete(id):
     db.session.delete(id)
     db.session.commit()
 
+    flash("Expense Deleted!")
     # Redirect user to home page
     return redirect("/")
 
