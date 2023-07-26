@@ -2,6 +2,7 @@ from collections import Counter
 import datetime
 from functools import wraps
 from flask import Blueprint, Flask, request, render_template, url_for, redirect, flash, session
+from flask_login import current_user
 from flask_session import Session
 from models.Expenses import Expenses
 from data.db import db
@@ -31,6 +32,11 @@ def login_required(f):
 @login_required
 def index():
     if request.method == "POST":
+
+        username = request.form.get("username")
+        user = Users.query.filter_by(username=username).first()
+        session["user_id"] = user
+
         item = request.form.get("item")
         category = request.form.get("category")
         value = request.form.get("value")
@@ -121,10 +127,10 @@ def register():
         hash = generate_password_hash(password)
 
         # Query database for username
-        user = Users.query.get(username)
+        user = Users.query.filter_by(username=username).first()
 
         # Ensure username is not duplicated
-        if user == request.form.get("username"):
+        if user:
             message = "User already exist"
             return render_template("error.html", message=message)
 
@@ -176,7 +182,6 @@ def login():
         password = request.form.get("password")
 
         user = Users.query.filter_by(username=username).first()
-        print(user)
 
         # check if the user actually exists
         # take the user-supplied password, hash it, and compare it to the hashed password in the database
@@ -188,7 +193,7 @@ def login():
         session["user_id"] = user
 
         # Redirect user to home page
-        return redirect("/")
+        return render_template("index.html", username=user.username)
 
     # User reached route via GET (as by clicking a link or via redirect)
     else:

@@ -1,25 +1,28 @@
-
 {% extends "layout.html" %} {% block title %} Index {% endblock %} {% block main%}
+<div>
+  {% if session["user_id"] %}
 
-<form action="/" method="post">
-  <div class="container">
-    <div class="row ">
-      <div class="col-lg-3 .col-sm-12">
-        <h5>Expenses register</h5>
-        <div class="mb-3">
-          <input autocomplete="off" autofocus class="form-control mx-auto w-auto" id="item" name="item"
-            placeholder="Item" required type="text" />
-        </div>
-        <div class="mb-3">
-          <input autocomplete="off" autofocus class="form-control mx-auto w-auto" id="category" name="category"
-            placeholder="Category" type="text" />
-        </div>
-        <div class="mb-3">
-          <input class="form-control mx-auto w-auto" id="value" name="value" placeholder="22.33" step="any"
-            type="number" required />
-        </div>
-        <button class="btn btn-primary" type="submit">Save</button>
-</form>
+  <h3>Hi {{ username}}!</h3>
+  {% endif %}
+  <form action="/" method="post">
+    <div class="container">
+      <div class="row ">
+        <div class="col-lg-3 .col-sm-12">
+          <h5>Expenses register</h5>
+          <div class="mb-3">
+            <input autocomplete="off" autofocus class="form-control mx-auto w-auto" id="item" name="item"
+              placeholder="Item" required type="text" />
+          </div>
+          <div class="mb-3">
+            <input autocomplete="off" autofocus class="form-control mx-auto w-auto" id="category" name="category"
+              placeholder="Category" type="text" />
+          </div>
+          <div class="mb-3">
+            <input class="form-control mx-auto w-auto" id="value" name="value" placeholder="22.33" step="any"
+              type="number" required />
+          </div>
+          <button class="btn btn-primary" type="submit">Save</button>
+  </form>
 
 </div>
 <div class="col-lg-9 .col-sm-12">
@@ -37,23 +40,23 @@
       {% for expenses in expenses %}
       <tr>
         <td>
-            <div class="row align-content-center align-items-center">
-              <div class="col-lg-3 col-xxl-2  col-md-3 ">
-                <form method="post" action="{{ url_for('personalFinance.delete', id=expenses.id) }}">
-                  <button class="btn btn-outline-danger" type="submit" name="delete" value="Delete">
-                    <img src="static/trash.svg">
-                  </button>
+          <div class="row align-content-center align-items-center">
+            <div class="col-lg-3 col-xxl-2  col-md-3 ">
+              <form method="post" action="{{ url_for('personalFinance.delete', id=expenses.id) }}">
+                <button class="btn btn-outline-danger" type="submit" name="delete" value="Delete">
+                  <img src="static/trash.svg">
+                </button>
 
-                </form>
-              </div>
-              <div class="col-lg-3  col-xxl-2 col-md-3 ">
-                <a href="{{ url_for('personalFinance.update', id=expenses.id) }}">
+              </form>
+            </div>
+            <div class="col-lg-3  col-xxl-2 col-md-3 ">
+              <a href="{{ url_for('personalFinance.update', id=expenses.id) }}">
                 <button type="button" class="btn btn-outline-primary">
                   <img src="static/pencil.svg">
                 </button>
-                </a>
-              </div>
-            </div>     
+              </a>
+            </div>
+          </div>
         </td>
         <td>
           <div class="">
@@ -72,6 +75,6 @@
 </div>
 </div>
 </div>
-
+</div>
 </div>
 {% endblock %}
