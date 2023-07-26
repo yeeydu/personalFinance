@@ -1,14 +1,34 @@
+from collections import Counter
 import datetime
-from flask import Blueprint, Flask, request, render_template, redirect, flash
+from functools import wraps
+from flask import Blueprint, Flask, request, render_template, url_for, redirect, flash, session
+from flask_session import Session
 from models.Expenses import Expenses
 from data.db import db
 from sqlalchemy import engine_from_config, text
+from werkzeug.security import generate_password_hash, check_password_hash
+
+from models.Users import Users
 
 personalFinance = Blueprint("personalFinance", __name__)
 
 
+def login_required(f):
+    """
+    Decorate routes to require login.
+    http://flask.pocoo.org/docs/0.12/patterns/viewdecorators/
+    """
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if session.get("user_id") is None:
+            return redirect("/login")
+        return f(*args, **kwargs)
+
+    return decorated_function
+
 # ROUTES
 @personalFinance.route("/", methods=["GET", "POST"])
+@login_required
 def index():
     if request.method == "POST":
         item = request.form.get("item")
@@ -28,17 +48,18 @@ def index():
         flash("Expense added succesfully!")
         # Redirect user to home page
         return redirect("/")
-    
+
     else:
         expenses = Expenses.query.all()
         if expenses:
             return render_template("index.html", expenses=expenses)
         else:
-            return render_template("index.html") 
+            return render_template("index.html")
 
-@personalFinance.route('/update/<int:id>', methods=["GET", "POST"])
+
+@personalFinance.route("/update/<int:id>", methods=["GET", "POST"])
 def update(id):
-    if request.method == 'POST':
+    if request.method == "POST":
         expenses = Expenses.query.get(id)
         expenses.item = request.form.get("item")
         expenses.category = request.form.get("category")
@@ -49,13 +70,14 @@ def update(id):
         flash("Expense updated succesfully!")
         # Redirect user to home page
         return redirect("/")
-        
+
     else:
         expenses = Expenses.query.get(id)
         return render_template("update.html", expenses=expenses)
 
+
 # delete method
-@personalFinance.route('/delete/<id>', methods=[ "POST"])
+@personalFinance.route("/delete/<id>", methods=["POST"])
 def delete(id):
     id = Expenses.query.get(id)
     db.session.delete(id)
@@ -66,74 +88,122 @@ def delete(id):
     return redirect("/")
 
 
+# REGISTRATION
+@personalFinance.route("/registration", methods=["GET", "POST"])
+def register():
+    # User reached route via POST (as by submitting a form via POST)
+    if request.method == "POST":
+        username = request.form.get("username")
 
-# @personalFinance.route("/register", methods=["GET", "POST"])
-# def register():
-#     return render_template("register.html")
+        # Ensure passwords are the same
+        password = request.form.get("password")
+        confirmation = request.form.get("confirmation")
+
+        # Ensure username was submitted
+        if not request.form.get("username"):
+            message = "You must provide username"
+            return render_template("error.html", message=message)
+
+        # Ensure password was submitted
+        elif not request.form.get("password"):
+            message = "You must provide password"
+            return render_template("error.html", message=message)
+
+        # Ensure password was re-submitted
+        elif not request.form.get("confirmation"):
+            message = "You must confirm password"
+            return render_template("error.html", message=message)
+        elif password != confirmation:
+            message = "Password and confirm password must be the same"
+            return render_template("error.html", message=message)
+
+        # hash user password
+        hash = generate_password_hash(password)
+
+        # Query database for username
+        user = Users.query.get(username)
+
+        # Ensure username is not duplicated
+        if user == request.form.get("username"):
+            message = "User already exist"
+            return render_template("error.html", message=message)
+
+        # insert user into database
+        created_at = datetime.datetime.now()
+
+        newUser = Users(username, hash, created_at)
+        db.session.add(newUser)
+        db.session.commit()
+
+        # Remember which user has register in
+        session["user_id"] = newUser
+
+        flash("New user register succesfully!")
+        # Redirect user to home page
+        return redirect("/")
+
+    # User reached route via GET (as by clicking a link or via redirect)
+    else:
+        return render_template("register.html")
+
 
 # @personalFinance.route("/contact", methods=["GET"])
 # def contact():
 #     return render_template("contact.html")
 
 
-# @personalFinance.route("/login", methods=["GET", "POST"])
-# def login():
-#     #Log user in
+# LOGIN
+@personalFinance.route("/login", methods=["GET", "POST"])
+def login():
+    # Forget any user_id
+    session.clear()
 
-#     # Forget any user_id
-#     session.clear()
+    # User reached route via POST (as by submitting a form via POST)
+    if request.method == "POST":
+        
+        # Ensure username was submitted
+        if not request.form.get("username", "guest"):
+            message = "You must provide username"
+            return render_template("error.html", message=message)
 
-#     # User reached route via POST (as by submitting a form via POST)
-#     if request.method == "POST":
-#         # Ensure username was submitted
-#         if not request.form.get("username"):
-#             return apology("must provide username", 403)
+        # Ensure password was submitted
+        elif not request.form.get("password",""):
+            message = "You must provide password"
+            return render_template("error.html", message=message)
 
-#         # Ensure password was submitted
-#         elif not request.form.get("password"):
-#             return apology("must provide password", 403)
+        # Query database for username
+        username = request.form.get("username")
+        password = request.form.get("password")
 
-#         # Query database for username
-#         rows = db.execute(
-#             "SELECT * FROM users WHERE username = ?", request.form.get("username")
-#         )
+        user = Users.query.filter_by(username=username).first()
+        print(user)
 
-#         # Ensure username exists and password is correct
-#         if len(rows) != 1 or not check_password_hash(
-#             rows[0]["hash"], request.form.get("password")
-#         ):
-#             return apology("invalid username and/or password", 403)
+        # check if the user actually exists
+        # take the user-supplied password, hash it, and compare it to the hashed password in the database
+        if not user or not check_password_hash(user.password, password):
+             message = "Invalid username and/or password"
+             return render_template("error.html", message=message)
+        
+        # Remember which user has logged in
+        session["user_id"] = user
 
-#         # Remember which user has logged in
-#         session["user_id"] = rows[0]["id"]
+        # Redirect user to home page
+        return redirect("/")
 
-#         #Redirect new user to quotes to buy shares"""
-#         user_id = session["user_id"]
-#         user_info = db.execute(
-#             "SELECT SUM(shares)AS shares FROM transactions WHERE user_id = ? GROUP BY symbol",
-#             user_id,
-#         )
-
-#         if not user_info:
-#             return redirect("/index")
-
-#         # Redirect user to home page
-#         return redirect("/")
-
-#     # User reached route via GET (as by clicking a link or via redirect)
-#     else:
-#         return render_template("login.html")
+    # User reached route via GET (as by clicking a link or via redirect)
+    else:
+        return render_template("login.html")
 
 
-# @app.route("/logout")
-# def logout():
-#     """Log user out"""
+@personalFinance.route("/logout")
+def logout():
+    """Log user out"""
 
-#     # Forget any user_id
-#     session.clear()
+    # Forget any user_id
+    session.clear()
 
-#     # Redirect user to login form
-#     return redirect("/")
+    # Redirect user to login form
+    return redirect("/")
 
 
 # @app.route("/balance", methods=["GET", "POST"])
@@ -164,3 +234,4 @@ def delete(id):
 #         balance = db.execute("SELECT cash FROM users WHERE id = ?", user_id)
 #         balance_cash = balance[0]["cash"]
 #         return render_template("balance.html", balance_cash=balance_cash)
+
