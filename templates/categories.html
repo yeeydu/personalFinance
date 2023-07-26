@@ -1,0 +1,43 @@
+{% extends "layout.html" %} {% block title %} Index {% endblock %} {% block main%}
+<h5>Register new categories</h5>
+<div class="mt-5 mb-5">
+  <form action="/categories" method="post">
+    <div class="container">
+      <div class="row ">
+        <div class="col-lg-6 .col-sm-12">
+          <h5>Expenses Categories</h5>
+          <div class="mb-3">
+            <input autocomplete="off" autofocus class="form-control mx-auto w-auto" id="category" name="category"
+              placeholder="Category" type="text" />
+          </div>
+          <button class="btn btn-primary" type="submit">Save</button>
+  </form>
+  <div class="mt-5">
+      {% for category in category %}
+     <span class="bg-info p-2 rounded-2">{{ category.category }}</span>
+      {%endfor%}
+  </div>
+</div>
+<div class="col-lg-6 .col-sm-12  mt-lg-0 mt-sm-5">
+    <form action="/categories" method="post">
+        <div class="container">
+          <div class="row ">
+            <div class="col-lg-6 .col-sm-12">
+              <h5>Income Categories</h5>
+              <div class="mb-3">
+                <input autocomplete="off" autofocus class="form-control mx-auto w-auto" id="income_type" name="income_type"
+                  placeholder="Category" type="text" />
+              </div>
+              <button class="btn btn-primary" type="submit">Save</button>
+            </form>
+            <div class="mt-5">
+                {% for income_type in income_type %}
+                <span class="bg-info p-2 rounded-2">{{ income_type.income_type }}</span>
+                {%endfor%}
+            </div>
+        </div>
+      </div>
+</div>
+</div>
+
+{% endblock %}

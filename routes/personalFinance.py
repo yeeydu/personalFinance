@@ -4,10 +4,11 @@ from functools import wraps
 from flask import Blueprint, Flask, request, render_template, url_for, redirect, flash, session
 from flask_login import current_user
 from flask_session import Session
-from models.Expenses import Expenses
+from models.Expenses import Category, Expenses
 from data.db import db
 from sqlalchemy import engine_from_config, text
 from werkzeug.security import generate_password_hash, check_password_hash
+from models.Income import Income_type
 
 from models.Users import Users
 
@@ -209,6 +210,55 @@ def logout():
 
     # Redirect user to login form
     return redirect("/")
+
+# categories
+@personalFinance.route("/categories", methods=["GET", "POST"])
+@login_required
+def categories():
+    if request.method == "POST":
+        category = request.form.get("category")
+        income_type = request.form.get("income_type")
+
+        #category
+        if category:
+            category = request.form.get("category")
+            newCategory = Category(category)
+            db.session.add(newCategory)
+
+            if not category:
+                message = "You must fill a category"
+                return render_template("error.html", message=message)
+
+            db.session.commit()
+            flash("Category added succesfully!")
+            # Redirect user to home page
+            return redirect("/categories")
+        #income type
+        if income_type:
+            income_type = request.form.get("income_type")
+            newType = Income_type(income_type)
+            db.session.add(newType)
+
+            if not income_type:
+                message = "You must fill a income type"
+                return render_template("error.html", message=message)
+
+            db.session.commit()
+            flash("Income type added succesfully!")
+            # Redirect user to home page
+            return redirect("/categories")
+    else:
+        category = Category.query.all()  
+        income_type = Income_type.query.all()
+        return render_template("categories.html", category=category, income_type=income_type)
+    
+
+
+        
+
+
+
+
 
 
 # @app.route("/balance", methods=["GET", "POST"])
