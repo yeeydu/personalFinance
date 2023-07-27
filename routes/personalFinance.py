@@ -346,17 +346,6 @@ def categories():
         )
 
 
-# @app.route("/balance", methods=["GET", "POST"])
-# @login_required
-# def balance():
-#     """Get Cash balance and add some"""
-#     if request.method == "POST":
-#         user_id = session["user_id"]
-#         add = request.form.get("add")
-
-#         # Ensure value was submitted
-#         if not add:
-#             return apology("must provide some values", 403)
 
 #         # get user cash balance
 #         balance = db.execute("SELECT cash FROM users WHERE id = ?", user_id)
@@ -366,11 +355,3 @@ def categories():
 #         new_balance = balance_cash + float(add)
 #         db.execute("UPDATE users SET cash = ? WHERE id = ?", new_balance, user_id)
 
-#         return redirect("/")
-
-#     else:
-#         # get user cash balance
-#         user_id = session["user_id"]
-#         balance = db.execute("SELECT cash FROM users WHERE id = ?", user_id)
-#         balance_cash = balance[0]["cash"]
-#         return render_template("balance.html", balance_cash=balance_cash)
