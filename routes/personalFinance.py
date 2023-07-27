@@ -6,10 +6,9 @@ from flask_login import current_user
 from flask_session import Session
 from models.Expenses import Category, Expenses
 from data.db import db
-from sqlalchemy import engine_from_config, text
+from sqlalchemy import Connection, engine_from_config, select, text
 from werkzeug.security import generate_password_hash, check_password_hash
-from models.Income import Income_type
-
+from models.Income import Income, Income_type
 from models.Users import Users
 
 personalFinance = Blueprint("personalFinance", __name__)
@@ -33,38 +32,73 @@ def login_required(f):
 @login_required
 def index():
     if request.method == "POST":
-
-        username = request.form.get("username")
-        user = Users.query.filter_by(username=username).first()
-        session["user_id"] = user
-
-        item = request.form.get("item")
         category = request.form.get("category")
-        value = request.form.get("value")
-        created_at = datetime.datetime.now()
+        income_type = request.form.get("income_type")
 
-        newExpence = Expenses(item, category, value, created_at)
+        # Save Expenses
+        if category:
+            #category = Category.query.all()
+            item = request.form.get("item")
+            category = request.form.get("category")
+            value = request.form.get("value")
+            created_at = datetime.datetime.now()
 
-        db.session.add(newExpence)
+            newExpence = Expenses(item, category, value, created_at)
+            db.session.add(newExpence)
 
-        if not item or not category or not value:
-            message = "You must fill all information"
-            return render_template("error.html", message=message)
+            #if no value is selected gives error message
+            if not item or not category or not value:
+                message = "You must fill all information"
+                return render_template("error.html", message=message)
 
-        db.session.commit()
-        flash("Expense added succesfully!")
-        # Redirect user to home page
-        return redirect("/")
+            db.session.commit()
+
+            # Flash message of success
+            flash("Expense added succesfully!")
+
+            # Redirect user to home page
+            return redirect("/")
+        
+        # Save income
+        if income_type:
+            #income = Income.query.all()
+
+            income_type = request.form.get("income_type")
+            value = request.form.get("value")
+            created_at = datetime.datetime.now()
+
+            newIncome = Income(income_type, value, created_at)
+            db.session.add(newIncome)
+
+            #if no value is selected gives error message
+            if not income_type or not value:
+                message = "You must fill all information"
+                return render_template("error.html", message=message)
+
+            db.session.commit()
+
+            # Flash message of success
+            flash("Income added succesfully!")
+
+            # Redirect user to home page
+            return redirect("/")
 
     else:
+        user_id = session["user_id"]
+        #user = Expenses.query.filter(Expenses.user_id == user_id).first()
+        #info = Expenses.select(Expenses.item, Expenses.value).where(Expenses.user_id == user_id)
+        #expenses = db.session("select * FROM Expenses WHERE expenses.user_id= ?", user_id)
+        
+        income = Income.query.all()
+        income_type = Income_type.query.all()
         expenses = Expenses.query.all()
-        if expenses:
-            return render_template("index.html", expenses=expenses)
-        else:
-            return render_template("index.html")
+        category = Category.query.all()
+        catId = Category.query.all()
+        return render_template("index.html", expenses=expenses,  category=category, catId=catId,income=income, income_type=income_type)
 
-
+#UPDATE EXPENSES METHOD
 @personalFinance.route("/update/<int:id>", methods=["GET", "POST"])
+@login_required
 def update(id):
     if request.method == "POST":
         expenses = Expenses.query.get(id)
@@ -74,7 +108,9 @@ def update(id):
 
         db.session.commit()
 
+        # Flash message of success
         flash("Expense updated succesfully!")
+
         # Redirect user to home page
         return redirect("/")
 
@@ -83,14 +119,17 @@ def update(id):
         return render_template("update.html", expenses=expenses)
 
 
-# delete method
+# DELETE METHOD
 @personalFinance.route("/delete/<id>", methods=["POST"])
+@login_required
 def delete(id):
     id = Expenses.query.get(id)
     db.session.delete(id)
     db.session.commit()
 
+    # Flash message of success
     flash("Expense Deleted!")
+
     # Redirect user to home page
     return redirect("/")
 
@@ -145,11 +184,13 @@ def register():
         # Remember which user has register in
         session["user_id"] = newUser
 
+        # Flash message of success
         flash("New user register succesfully!")
+
         # Redirect user to home page
         return redirect("/")
 
-    # User reached route via GET (as by clicking a link or via redirect)
+    # User reached route via GET
     else:
         return render_template("register.html")
 
@@ -194,9 +235,10 @@ def login():
         session["user_id"] = user
 
         # Redirect user to home page
-        return render_template("index.html", username=user.username)
+        return redirect("/")
+        #return render_template("index.html", username=user.username)
 
-    # User reached route via GET (as by clicking a link or via redirect)
+    # User reached route via GET 
     else:
         return render_template("login.html")
 
@@ -211,7 +253,7 @@ def logout():
     # Redirect user to login form
     return redirect("/")
 
-# categories
+# SAVE NEW CATEGORIES PAGE
 @personalFinance.route("/categories", methods=["GET", "POST"])
 @login_required
 def categories():
@@ -221,6 +263,10 @@ def categories():
 
         #category
         if category:
+
+            # category = Category(name="Housing")
+            # session.add(category)
+
             category = request.form.get("category")
             newCategory = Category(category)
             db.session.add(newCategory)
@@ -233,6 +279,7 @@ def categories():
             flash("Category added succesfully!")
             # Redirect user to home page
             return redirect("/categories")
+        
         #income type
         if income_type:
             income_type = request.form.get("income_type")
@@ -247,19 +294,12 @@ def categories():
             flash("Income type added succesfully!")
             # Redirect user to home page
             return redirect("/categories")
+        
     else:
         category = Category.query.all()  
         income_type = Income_type.query.all()
         return render_template("categories.html", category=category, income_type=income_type)
     
-
-
-        
-
-
-
-
-
 
 # @app.route("/balance", methods=["GET", "POST"])
 # @login_required

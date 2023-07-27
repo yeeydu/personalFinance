@@ -13,8 +13,8 @@ class Expenses(db.Model):
     value = db.Column(db.Numeric(8,2), nullable=False)
     created_at = db.Column(db.DateTime(timezone=True), server_default=func.now())
 
-    # user = relationship("Users", foreign_keys="[user_id]")
-    # category = relationship("Category", foreign_keys="[category]")
+    # user = db.relationship("Users", db.foreignkeys="[user.id]")
+    # category = db.relationship("Category", db.foreignkeys="[category.id]")
 
     def __init__(self, item,  category, value, created_at):
         self.item = item

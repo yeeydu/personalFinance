@@ -31,11 +31,3 @@ def conv_curr(amount):
   import locale 
   locale.setlocale(locale.LC_ALL, 'en_US.UTF-8') 
   return locale.currency(amount)
-
-@app.after_request
-def after_request(response):
-    """Ensure responses aren't cached"""
-    response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
-    response.headers["Expires"] = 0
-    response.headers["Pragma"] = "no-cache"
-    return response
