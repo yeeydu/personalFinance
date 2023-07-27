@@ -1,12 +1,21 @@
 from collections import Counter
 import datetime
 from functools import wraps
-from flask import Blueprint, Flask, request, render_template, url_for, redirect, flash, session
+from flask import (
+    Blueprint,
+    Flask,
+    request,
+    render_template,
+    url_for,
+    redirect,
+    flash,
+    session,
+)
 from flask_login import current_user
 from flask_session import Session
 from models.Expenses import Category, Expenses
 from data.db import db
-from sqlalchemy import Connection, engine_from_config, select, text
+from sqlalchemy import Connection, engine_from_config, func, select, text
 from werkzeug.security import generate_password_hash, check_password_hash
 from models.Income import Income, Income_type
 from models.Users import Users
@@ -19,6 +28,7 @@ def login_required(f):
     Decorate routes to require login.
     http://flask.pocoo.org/docs/0.12/patterns/viewdecorators/
     """
+
     @wraps(f)
     def decorated_function(*args, **kwargs):
         if session.get("user_id") is None:
@@ -26,6 +36,7 @@ def login_required(f):
         return f(*args, **kwargs)
 
     return decorated_function
+
 
 # ROUTES
 @personalFinance.route("/", methods=["GET", "POST"])
@@ -37,7 +48,7 @@ def index():
 
         # Save Expenses
         if category:
-            #category = Category.query.all()
+            # category = Category.query.all()
             item = request.form.get("item")
             category = request.form.get("category")
             value = request.form.get("value")
@@ -46,7 +57,7 @@ def index():
             newExpence = Expenses(item, category, value, created_at)
             db.session.add(newExpence)
 
-            #if no value is selected gives error message
+            # if no value is selected gives error message
             if not item or not category or not value:
                 message = "You must fill all information"
                 return render_template("error.html", message=message)
@@ -58,10 +69,10 @@ def index():
 
             # Redirect user to home page
             return redirect("/")
-        
+
         # Save income
         if income_type:
-            #income = Income.query.all()
+            # income = Income.query.all()
 
             income_type = request.form.get("income_type")
             value = request.form.get("value")
@@ -70,7 +81,7 @@ def index():
             newIncome = Income(income_type, value, created_at)
             db.session.add(newIncome)
 
-            #if no value is selected gives error message
+            # if no value is selected gives error message
             if not income_type or not value:
                 message = "You must fill all information"
                 return render_template("error.html", message=message)
@@ -85,18 +96,37 @@ def index():
 
     else:
         user_id = session["user_id"]
-        #user = Expenses.query.filter(Expenses.user_id == user_id).first()
-        #info = Expenses.select(Expenses.item, Expenses.value).where(Expenses.user_id == user_id)
-        #expenses = db.session("select * FROM Expenses WHERE expenses.user_id= ?", user_id)
-        
+        # user = Expenses.query.filter(Expenses.user_id == user_id).first()
+        # info = Expenses.select(Expenses.item, Expenses.value).where(Expenses.user_id == user_id)
+        # expenses = db.session("select * FROM Expenses WHERE expenses.user_id= ?", user_id)
+
         income = Income.query.all()
         income_type = Income_type.query.all()
+        #sum total income
+        total_income = Income.query.with_entities(func.sum(Income.value).label('total')).first().total
+
         expenses = Expenses.query.all()
         category = Category.query.all()
-        catId = Category.query.all()
-        return render_template("index.html", expenses=expenses,  category=category, catId=catId,income=income, income_type=income_type)
+        #sum total expenses
+        total_expenses = Expenses.query.with_entities(func.sum(Expenses.value).label('total')).first().total
 
-#UPDATE EXPENSES METHOD
+        catId = Category.query.all()
+        #balance
+        balance = (total_income - total_expenses)
+        return render_template(
+            "index.html",
+            expenses=expenses,
+            category=category,
+            catId=catId,
+            income=income,
+            income_type=income_type,
+            total_income=total_income,
+            total_expenses=total_expenses,
+            balance=balance
+        )
+
+
+# UPDATE EXPENSES METHOD
 @personalFinance.route("/update/<int:id>", methods=["GET", "POST"])
 @login_required
 def update(id):
@@ -146,7 +176,6 @@ def delete_income(id):
 
     # Redirect user to home page
     return redirect("/")
-
 
 
 # REGISTRATION
@@ -223,14 +252,13 @@ def login():
 
     # User reached route via POST (as by submitting a form via POST)
     if request.method == "POST":
-        
         # Ensure username was submitted
         if not request.form.get("username", "guest"):
             message = "You must provide username"
             return render_template("error.html", message=message)
 
         # Ensure password was submitted
-        elif not request.form.get("password",""):
+        elif not request.form.get("password", ""):
             message = "You must provide password"
             return render_template("error.html", message=message)
 
@@ -243,17 +271,17 @@ def login():
         # check if the user actually exists
         # take the user-supplied password, hash it, and compare it to the hashed password in the database
         if not user or not check_password_hash(user.password, password):
-             message = "Invalid username and/or password"
-             return render_template("error.html", message=message)
-        
+            message = "Invalid username and/or password"
+            return render_template("error.html", message=message)
+
         # Remember which user has logged in
         session["user_id"] = user
 
         # Redirect user to home page
         return redirect("/")
-        #return render_template("index.html", username=user.username)
+        # return render_template("index.html", username=user.username)
 
-    # User reached route via GET 
+    # User reached route via GET
     else:
         return render_template("login.html")
 
@@ -268,6 +296,7 @@ def logout():
     # Redirect user to login form
     return redirect("/")
 
+
 # SAVE NEW CATEGORIES PAGE
 @personalFinance.route("/categories", methods=["GET", "POST"])
 @login_required
@@ -276,9 +305,8 @@ def categories():
         category = request.form.get("category")
         income_type = request.form.get("income_type")
 
-        #category
+        # category
         if category:
-
             # category = Category(name="Housing")
             # session.add(category)
 
@@ -294,8 +322,8 @@ def categories():
             flash("Category added succesfully!")
             # Redirect user to home page
             return redirect("/categories")
-        
-        #income type
+
+        # income type
         if income_type:
             income_type = request.form.get("income_type")
             newType = Income_type(income_type)
@@ -309,12 +337,14 @@ def categories():
             flash("Income type added succesfully!")
             # Redirect user to home page
             return redirect("/categories")
-        
+
     else:
-        category = Category.query.all()  
+        category = Category.query.all()
         income_type = Income_type.query.all()
-        return render_template("categories.html", category=category, income_type=income_type)
-    
+        return render_template(
+            "categories.html", category=category, income_type=income_type
+        )
+
 
 # @app.route("/balance", methods=["GET", "POST"])
 # @login_required
@@ -344,4 +374,3 @@ def categories():
 #         balance = db.execute("SELECT cash FROM users WHERE id = ?", user_id)
 #         balance_cash = balance[0]["cash"]
 #         return render_template("balance.html", balance_cash=balance_cash)
-
