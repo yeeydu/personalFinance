@@ -15,7 +15,7 @@ from flask_login import current_user
 from flask_session import Session
 from models.Expenses import Category, Expenses
 from data.db import db
-from sqlalchemy import Connection, engine_from_config, func, select, text
+from sqlalchemy import Connection, Null, engine_from_config, func, select, text
 from werkzeug.security import generate_password_hash, check_password_hash
 from models.Income import Income, Income_type
 from models.Users import Users
@@ -82,8 +82,11 @@ def index():
             db.session.add(newIncome)
 
             # if no value is selected gives error message
-            if not income_type or not value:
-                message = "You must fill all information"
+            if not value:
+                message = "You must fill the value"
+                return render_template("error.html", message=message)
+            if income_type is None:
+                message = "You must create a income type"
                 return render_template("error.html", message=message)
 
             db.session.commit()
@@ -112,7 +115,12 @@ def index():
 
         catId = Category.query.all()
         #balance
-        balance = (total_income - total_expenses)
+        if total_income is None:
+            total_income = 0
+        if total_expenses is None:
+            total_expenses = 0
+        balance = total_income - total_expenses
+
         return render_template(
             "index.html",
             expenses=expenses,

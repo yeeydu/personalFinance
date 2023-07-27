@@ -26,8 +26,7 @@ main%}
               />
             </div>
             <div class="input-group  mb-3">
-              <select name="category" id="category" class="form-select mx-auto w-auto">
-                <option disabled="" selected="">Category</option>
+              <select name="category" id="category" class="form-select mx-auto w-auto" required>
                 {% for cat in category %}
                 <option value="{{ cat.id }}">{{ cat.category }}</option>
                 {% endfor %}
@@ -51,8 +50,7 @@ main%}
           <!--INCOME FORM-->
           <form action="/" method="post" class="bg-light p-5 shadow-sm mb-5">
             <div class="input-group mb-3">
-              <select name="income_type" id="income_type" class="form-select mx-auto w-auto">
-                <option disabled="" selected="">Income type</option>
+              <select name="income_type" id="income_type" class="form-select mx-auto w-auto" required>  
                 {% for income in income_type %}
                 <option value="{{ income.id }}">{{ income.income_type }}</option>
                 {% endfor %}
@@ -214,10 +212,14 @@ main%}
                       <td><strong>-{{total_expenses | conv_curr}}</strong></td>
                     </tr>
                     <tr>
-                      {% if balance<1 %}
+                      {% if balance<0 %}
                       <td class="text-danger"> Balance </td>
                       <td class="text-danger"><strong>{{balance | conv_curr}}</strong></td>
                       <p class="text-danger">Ohh you spent a lot!</p>
+                      {% elif balance==0 %}
+                      <td class="text-black"> Balance </td>
+                      <td class="text-black"><strong>{{balance | conv_curr}}</strong></td>
+                      <p class="text-black">You need to get some income!</p>
                       {% else %}
                       <td class="text-success"> Balance </td>
                       <td class="text-success"><strong>{{balance | conv_curr}}</strong></td>
