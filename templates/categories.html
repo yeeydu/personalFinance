@@ -2,9 +2,9 @@
 main%}
 <h5>Register new categories</h5>
 
-<div class="container mt-5 mb-5">
+<div class="container mt-5 mb-5 ">
   <div class="row">
-    <div class="col-lg-6 .col-sm-12">
+    <div class="col-lg-6 .col-sm-12 bg-light p-5 shadow-sm">
       <form action="/categories" method="post">
         <h5>Expenses Categories</h5>
         <div class="mb-3">
@@ -23,12 +23,29 @@ main%}
       </form>
       <div class="mt-5">
         {% for category in category %}
-        <span class="bg-info p-2 rounded-2">{{ category.category }}</span>
+        <div class="d-flex flex-row mb-3 justify-content-center">
+          <form
+            method="post"
+            action="{{ url_for('personalFinance.delete_category', id=category.id) }}"
+          >
+            <span class="bg-secondary p-2 rounded-3 text-light text-uppercase"
+              >{{ category.category }}</span
+            >
+            <button
+              class="btn btn-outline-dark"
+              type="submit"
+              name="delete"
+              value="Delete"
+            >
+              x
+            </button>
+          </form>
+        </div>
         {%endfor%}
       </div>
     </div>
     <div class="col-lg-6 .col-sm-12 mt-lg-0 mt-sm-5 mt-md-5">
-      <div class="container">
+      <div class="container bg-light p-5 shadow-sm">
         <div class="row">
           <form action="/categories" method="post">
             <h5>Income Categories</h5>
@@ -48,9 +65,25 @@ main%}
           </form>
           <div class="mt-5">
             {% for income_type in income_type %}
-            <span class="bg-info p-2 rounded-2"
-              >{{ income_type.income_type }}</span
-            >
+            <div class="d-flex flex-row mb-3 justify-content-center">
+              <form
+                method="post"
+                action="{{ url_for('personalFinance.delete_income_type', id=income_type.id) }}"
+              >
+                <span
+                  class="bg-secondary p-2 rounded-3 text-light text-uppercase"
+                  >{{ income_type.income_type }}</span
+                >
+                <button
+                  class="btn btn-outline-dark"
+                  type="submit"
+                  name="delete"
+                  value="Delete"
+                >
+                  x
+                </button>
+              </form>
+            </div>
             {%endfor%}
           </div>
         </div>

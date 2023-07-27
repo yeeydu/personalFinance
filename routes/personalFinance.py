@@ -157,7 +157,7 @@ def update(id):
         return render_template("update.html", expenses=expenses)
 
 
-# DELETE METHOD
+# DELETE EXPENSES METHOD
 @personalFinance.route("/delete/<id>", methods=["POST"])
 @login_required
 def delete(id):
@@ -171,7 +171,56 @@ def delete(id):
     # Redirect user to home page
     return redirect("/")
 
+# SAVE NEW CATEGORIES PAGE
+@personalFinance.route("/categories", methods=["GET", "POST"])
+@login_required
+def categories():
+    if request.method == "POST":
+        category = request.form.get("category")
+        income_type = request.form.get("income_type")
 
+        # category
+        if category:
+            # category = Category(name="Housing")
+            # session.add(category)
+
+            category = request.form.get("category")
+            newCategory = Category(category)
+            db.session.add(newCategory)
+
+            if not category:
+                message = "You must fill a category"
+                return render_template("error.html", message=message)
+
+            db.session.commit()
+            flash("Category added succesfully!")
+            # Redirect user to home page
+            return redirect("/categories")
+
+        # income type
+        if income_type:
+            income_type = request.form.get("income_type")
+            newType = Income_type(income_type)
+            db.session.add(newType)
+
+            if not income_type:
+                message = "You must fill a income type"
+                return render_template("error.html", message=message)
+
+            db.session.commit()
+            flash("Income type added succesfully!")
+            # Redirect user to home page
+            return redirect("/categories")
+
+    else:
+        category = Category.query.all()
+        income_type = Income_type.query.all()
+        return render_template(
+            "categories.html", category=category, income_type=income_type
+        )
+
+
+# DELETE INCOME METHOD
 @personalFinance.route("/delete_income/<id>", methods=["POST"])
 @login_required
 def delete_income(id):
@@ -185,6 +234,33 @@ def delete_income(id):
     # Redirect user to home page
     return redirect("/")
 
+# DELETE CATEGORY METHOD
+@personalFinance.route("/delete_category/<id>", methods=["POST"])
+@login_required
+def delete_category(id):
+    id = Category.query.get(id)
+    db.session.delete(id)
+    db.session.commit()
+
+    # Flash message of success
+    flash("Category Deleted!")
+
+    # Redirect user to home page
+    return redirect("/categories")
+
+# DELETE INCOME_TYPE METHOD
+@personalFinance.route("/delete_income_type/<id>", methods=["POST"])
+@login_required
+def delete_income_type(id):
+    id = Income_type.query.get(id)
+    db.session.delete(id)
+    db.session.commit()
+
+    # Flash message of success
+    flash("Income type Deleted!")
+
+    # Redirect user to home page
+    return redirect("/categories")
 
 # REGISTRATION
 @personalFinance.route("/registration", methods=["GET", "POST"])
@@ -305,53 +381,7 @@ def logout():
     return redirect("/")
 
 
-# SAVE NEW CATEGORIES PAGE
-@personalFinance.route("/categories", methods=["GET", "POST"])
-@login_required
-def categories():
-    if request.method == "POST":
-        category = request.form.get("category")
-        income_type = request.form.get("income_type")
 
-        # category
-        if category:
-            # category = Category(name="Housing")
-            # session.add(category)
-
-            category = request.form.get("category")
-            newCategory = Category(category)
-            db.session.add(newCategory)
-
-            if not category:
-                message = "You must fill a category"
-                return render_template("error.html", message=message)
-
-            db.session.commit()
-            flash("Category added succesfully!")
-            # Redirect user to home page
-            return redirect("/categories")
-
-        # income type
-        if income_type:
-            income_type = request.form.get("income_type")
-            newType = Income_type(income_type)
-            db.session.add(newType)
-
-            if not income_type:
-                message = "You must fill a income type"
-                return render_template("error.html", message=message)
-
-            db.session.commit()
-            flash("Income type added succesfully!")
-            # Redirect user to home page
-            return redirect("/categories")
-
-    else:
-        category = Category.query.all()
-        income_type = Income_type.query.all()
-        return render_template(
-            "categories.html", category=category, income_type=income_type
-        )
 
 
 
