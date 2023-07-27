@@ -134,6 +134,21 @@ def delete(id):
     return redirect("/")
 
 
+@personalFinance.route("/delete_income/<id>", methods=["POST"])
+@login_required
+def delete_income(id):
+    id = Income.query.get(id)
+    db.session.delete(id)
+    db.session.commit()
+
+    # Flash message of success
+    flash("Income Deleted!")
+
+    # Redirect user to home page
+    return redirect("/")
+
+
+
 # REGISTRATION
 @personalFinance.route("/registration", methods=["GET", "POST"])
 def register():
