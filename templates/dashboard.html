@@ -2,12 +2,11 @@
 <div class="row">
     <h1>Visualize your finances</h1>
     <div class="col-md-4"><!-- form/results will go here -->
-        item: {{ item }}<br>
-        value: {{ value }}<br>
+        TOTAL
         <canvas id="totalChart" width="400" height="200"></canvas>
     </div>
     <div class="col-md-8">
-        <canvas id="expenseChart" width="400" height="200"></canvas>
+        <canvas id="expenseChart" width="300" height="150"></canvas>
     </div>
 </div>
 
@@ -19,40 +18,82 @@
     let total_in = {{ total_income | tojson }}
     let total_ex =  {{ total_expenses | tojson }}
     let income_vs_expense_chart = new Chart(income_vs_expense, {
-    type: 'doughnut',
-    data: {
-    labels: ['Income', 'Expenses'],
-        datasets: [{
-            label: "Income Vs Expenses",
-            data: [total_in, total_ex],
-            backgroundColor: ['#60BD68 ', '#E16851'],
+        type: 'doughnut',
+        data: {
+        labels: ['Income', 'Expenses'],
+            datasets: [{
+                label: "Income Vs Expenses",
+                data: [total_in, total_ex],
+                backgroundColor: ['#60BD68 ', '#E16851'],
 
-            borderWidth: 1,
-            hoverBorderColor: "green",
-            hoverBorderWidth: 1,
-            hoverBackgroundColor: 'rgba(154, 245, 140)',
-            pointHoverRadius: 5
-        }],
-    },
-    options: {
-            title: {
-                display: true,
-                    text: "Income Vs Expenses",
-                        fontSize: 20,
-            },
-            legend: {
-                position: "right",
-                    labels: {
-                    fontColor: "gray"
+                borderWidth: 1,
+                hoverBorderColor: "green",
+                hoverBorderWidth: 1,
+                hoverBackgroundColor: 'rgba(154, 245, 140)',
+                pointHoverRadius: 5
+            }],
+        },
+        options: {
+                title: {
+                    display: true,
+                        text: "Income Vs Expenses",
+                            fontSize: 20,
                 },
-                display: true,
-            },
+                legend: {
+                    position: "right",
+                        labels: {
+                        fontColor: "gray"
+                    },
+                    display: true,
+                },
 
-            elements: {
-                hitRadius: 3,
-            }
-    }
-});
+                elements: {
+                    hitRadius: 3,
+                }
+        }
+    });
+
+const expense = document.getElementById('expenseChart');
+
+    let item = {{ item | tojson }}
+    let value =  {{ value | tojson }}
+    let category =  {{ category | tojson }}
+
+    let expense_chart = new Chart(expense, {
+        type: 'bar',
+        data: {
+        labels: item, // bar labels
+            datasets: [{
+                label: 'Expenses', // title graph
+                data: value, // data bar
+                backgroundColor: ['#60BD68 ', '#00bfff', '#80ff00', '#E16341', '#8000ff','#ff0080','#ff0000' ,'#ff9000', '#ff90a7', '#5b90a7', '#5b3568'],
+
+                borderWidth: 1,
+                hoverBorderColor: "red",
+                hoverBorderWidth: 1,
+                hoverBackgroundColor: 'rgba(154, 245, 140)',
+                pointHoverRadius: 5
+            }],
+        },
+        options: {
+                title: {
+                    display: true,
+                        text: "Expenses",
+                            fontSize: 20,
+                },
+                legend: {
+                    position: "right",
+                        labels: {
+                        fontColor: "gray"
+                    },
+                    display: true,
+                },
+
+                elements: {
+                    hitRadius: 3,
+                }
+        }
+    });
 </script>
      
 {% endblock %}

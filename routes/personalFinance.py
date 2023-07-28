@@ -14,6 +14,7 @@ from flask import (
 )
 from flask_login import current_user
 from flask_session import Session
+import sqlalchemy
 from models.Expenses import Category, Expenses
 from data.db import db
 from sqlalchemy import Connection, Null, engine_from_config, func, select, text
@@ -344,9 +345,12 @@ def dashboard():
     total_income = (Income.query.with_entities(func.sum(Income.value).label("total")).first().total)
     total_expenses = (Expenses.query.with_entities(func.sum(Expenses.value).label("total")).first().total)
     
-    
-    expenses = Expenses.query.all()
-    income = Income.query.all()
+    # sqlalchemy.select([
+    #     Expenses.item,
+    #     sqlalchemy.func.count(Expenses.category)
+    # ]).group_by(Expenses.category) 
+
+    expenses = Expenses.query.filter_by(category=Expenses.category).all()
     item = []
     value = []
     category = []
@@ -354,15 +358,14 @@ def dashboard():
         item.append(expense.item)
         value.append(expense.value)
         category.append(expense.category)
-
+    print(item)
     return render_template(
         "dashboard.html",
         total_income =  (total_income),
         total_expenses =  (total_expenses),
-        income=income,
         expenses=expenses,
-        item=item,
-        value=value,
+        item=  (item),
+        value= (value),
         category=category,
     )
 
