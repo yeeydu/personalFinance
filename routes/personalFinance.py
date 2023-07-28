@@ -12,7 +12,7 @@ from flask import (
     flash,
     session,
 )
-from flask_login import current_user
+from flask_login import current_user, login_user
 from flask_session import Session
 import sqlalchemy
 from models.Expenses import Category, Expenses
@@ -140,7 +140,7 @@ def index():
             income_type=income_type,
             total_income=total_income,
             total_expenses=total_expenses,
-            balance=balance,
+            balance=balance
         )
 
 
@@ -342,13 +342,19 @@ def register():
 @login_required
 def dashboard():
     # ...
-    total_income = (Income.query.with_entities(func.sum(Income.value).label("total")).first().total)
-    total_expenses = (Expenses.query.with_entities(func.sum(Expenses.value).label("total")).first().total)
-    
+    total_income = (
+        Income.query.with_entities(func.sum(Income.value).label("total")).first().total
+    )
+    total_expenses = (
+        Expenses.query.with_entities(func.sum(Expenses.value).label("total"))
+        .first()
+        .total
+    )
+
     # sqlalchemy.select([
     #     Expenses.item,
     #     sqlalchemy.func.count(Expenses.category)
-    # ]).group_by(Expenses.category) 
+    # ]).group_by(Expenses.category)
 
     expenses = Expenses.query.filter_by(category=Expenses.category).all()
     item = []
@@ -361,11 +367,11 @@ def dashboard():
     print(item)
     return render_template(
         "dashboard.html",
-        total_income =  (total_income),
-        total_expenses =  (total_expenses),
+        total_income=(total_income),
+        total_expenses=(total_expenses),
         expenses=expenses,
-        item=  (item),
-        value= (value),
+        item=(item),
+        value=(value),
         category=category,
     )
 
@@ -403,6 +409,9 @@ def login():
         # Remember which user has logged in
         session["user_id"] = user
 
+        # Flash message of success
+        flash("Login succesfully!")
+
         # Redirect user to home page
         return redirect("/")
         # return render_template("index.html", username=user.username)
@@ -410,6 +419,60 @@ def login():
     # User reached route via GET
     else:
         return render_template("login.html")
+
+
+# @personalFinance.route("/password", methods=["GET", "POST"])
+# @login_required
+# def password():
+    """Change password"""
+    if request.method == "POST":
+        # Ensure passwords are the same
+        user_id = session["user_id"]
+        username = request.form.get("password")
+        password = request.form.get("password")
+        confirmation = request.form.get("confirmation")
+
+        # Ensure username was submitted
+        if not request.form.get("username"):
+            message = "You must provide your username"
+            return render_template("error.html", message=message)
+
+        # Ensure password was submitted
+        if not request.form.get("password", ""):
+            message = "You must provide password"
+            return render_template("error.html", message=message)
+
+        # Ensure password was re-submitted
+        elif not request.form.get("confirmation"):
+            message = "You must confirm password"
+            return render_template("error.html", message=message)
+        elif password != confirmation:
+            message = "Password and confirm password must be the same"
+            return render_template("error.html", message=message)
+
+        user = Users.query.filter_by(username=Users.username).all()
+        print(user)
+        # insert user into database
+        try:
+            # hash user password
+            newPass = generate_password_hash(password)
+
+            Users.query.filter_by(user).update(dict(password=newPass))
+            db.session.commit()
+            # sqlalchemy.execute('UPDATE users SET password =? WHERE id = ?', newPass, user_id)
+            
+            # Flash message of success
+            flash("New password register succesfully!")
+        except:
+            message = "An error acurred"
+            return render_template("error.html", message=message)
+
+        # Redirect user to login form
+        return redirect("/")
+
+    else:
+        user_id = session["user_id"]
+        return render_template("password.html")
 
 
 @personalFinance.route("/logout")
@@ -421,12 +484,3 @@ def logout():
 
     # Redirect user to login form
     return redirect("/")
-
-
-#         # get user cash balance
-#         balance = db.execute("SELECT cash FROM users WHERE id = ?", user_id)
-#         balance_cash = balance[0]["cash"]
-
-#         # update user database with the new balance
-#         new_balance = balance_cash + float(add)
-#         db.execute("UPDATE users SET cash = ? WHERE id = ?", new_balance, user_id)
