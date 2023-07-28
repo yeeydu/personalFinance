@@ -18,6 +18,11 @@
       integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p"
     ></script>
 
+    <!-- CHART JS-->
+    {% block scripts %}  
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    {% block app_scripts %}{% endblock %} {% endblock %}
+
     <!-- https://favicon.io/emoji-favicons/money-bag/ -->
     <link href="/static/personalFin.ico" rel="icon" />
 
@@ -54,12 +59,12 @@
         <div class="collapse navbar-collapse" id="navbar">
           {% if session["user_id"] %}
           <ul class="navbar-nav me-auto mt-2">
+            <li class="nav-item">
+              <a class="nav-link" href="/dashboard">Dashboard</a>
+            </li>
             <li class="nav-item"><a class="nav-link" href="/">Finances</a></li>
             <li class="nav-item">
               <a class="nav-link" href="/categories">Categories</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="/charts">Charts</a>
             </li>
           </ul>
           <ul class="navbar-nav ms-auto mt-2">
@@ -99,8 +104,10 @@
     <footer class="mb-5 small text-center text-muted">
       Developed by
       <a href="https://yeeysonduarte.vercel.app/" target="_blank">Yeeyson</a>
-      software 
-      <a href="https://github.com/yeeydu/personalFinance/" target="_blank">info</a>
+      software
+      <a href="https://github.com/yeeydu/personalFinance/" target="_blank"
+        >info</a
+      >
     </footer>
   </body>
 </html>

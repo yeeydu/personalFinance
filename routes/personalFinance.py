@@ -1,6 +1,7 @@
 from collections import Counter
 import datetime
 from functools import wraps
+import json
 from flask import (
     Blueprint,
     Flask,
@@ -105,16 +106,24 @@ def index():
 
         income = Income.query.all()
         income_type = Income_type.query.all()
-        #sum total income
-        total_income = Income.query.with_entities(func.sum(Income.value).label('total')).first().total
+        # sum total income
+        total_income = (
+            Income.query.with_entities(func.sum(Income.value).label("total"))
+            .first()
+            .total
+        )
 
         expenses = Expenses.query.all()
         category = Category.query.all()
-        #sum total expenses
-        total_expenses = Expenses.query.with_entities(func.sum(Expenses.value).label('total')).first().total
+        # sum total expenses
+        total_expenses = (
+            Expenses.query.with_entities(func.sum(Expenses.value).label("total"))
+            .first()
+            .total
+        )
 
         catId = Category.query.all()
-        #balance
+        # balance
         if total_income is None:
             total_income = 0
         if total_expenses is None:
@@ -130,7 +139,7 @@ def index():
             income_type=income_type,
             total_income=total_income,
             total_expenses=total_expenses,
-            balance=balance
+            balance=balance,
         )
 
 
@@ -170,6 +179,7 @@ def delete(id):
 
     # Redirect user to home page
     return redirect("/")
+
 
 # SAVE NEW CATEGORIES PAGE
 @personalFinance.route("/categories", methods=["GET", "POST"])
@@ -234,6 +244,7 @@ def delete_income(id):
     # Redirect user to home page
     return redirect("/")
 
+
 # DELETE CATEGORY METHOD
 @personalFinance.route("/delete_category/<id>", methods=["POST"])
 @login_required
@@ -248,6 +259,7 @@ def delete_category(id):
     # Redirect user to home page
     return redirect("/categories")
 
+
 # DELETE INCOME_TYPE METHOD
 @personalFinance.route("/delete_income_type/<id>", methods=["POST"])
 @login_required
@@ -261,6 +273,7 @@ def delete_income_type(id):
 
     # Redirect user to home page
     return redirect("/categories")
+
 
 # REGISTRATION
 @personalFinance.route("/registration", methods=["GET", "POST"])
@@ -323,9 +336,35 @@ def register():
         return render_template("register.html")
 
 
-# @personalFinance.route("/contact", methods=["GET"])
-# def contact():
-#     return render_template("contact.html")
+# DASHBOARD
+@personalFinance.route("/dashboard", methods=["GET", "POST"])
+@login_required
+def dashboard():
+    # ...
+    total_income = (Income.query.with_entities(func.sum(Income.value).label("total")).first().total)
+    total_expenses = (Expenses.query.with_entities(func.sum(Expenses.value).label("total")).first().total)
+    
+    
+    expenses = Expenses.query.all()
+    income = Income.query.all()
+    item = []
+    value = []
+    category = []
+    for expense in expenses:
+        item.append(expense.item)
+        value.append(expense.value)
+        category.append(expense.category)
+
+    return render_template(
+        "dashboard.html",
+        total_income =  (total_income),
+        total_expenses =  (total_expenses),
+        income=income,
+        expenses=expenses,
+        item=item,
+        value=value,
+        category=category,
+    )
 
 
 # LOGIN
@@ -381,10 +420,6 @@ def logout():
     return redirect("/")
 
 
-
-
-
-
 #         # get user cash balance
 #         balance = db.execute("SELECT cash FROM users WHERE id = ?", user_id)
 #         balance_cash = balance[0]["cash"]
@@ -392,4 +427,3 @@ def logout():
 #         # update user database with the new balance
 #         new_balance = balance_cash + float(add)
 #         db.execute("UPDATE users SET cash = ? WHERE id = ?", new_balance, user_id)
-
