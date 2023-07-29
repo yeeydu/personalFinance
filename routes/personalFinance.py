@@ -105,7 +105,7 @@ def index():
         # info = Expenses.select(Expenses.item, Expenses.value).where(Expenses.user_id == user_id)
         # expenses = db.session("select * FROM Expenses WHERE expenses.user_id= ?", user_id)
 
-        income = Income.query.limit(5).all()
+        income = Income.query.limit(4).all()
         income_type = Income_type.query.all()
         # sum total income
         total_income = (
@@ -115,8 +115,8 @@ def index():
         )
         
         page = request.args.get('page', 1, type=int)
-        pagination = Expenses.query.paginate(page=page, per_page=7)
-        #expenses = Expenses.query.all()
+        pagination = Expenses.query.paginate(page=page, per_page=5)
+        #expenses = Expenses.query.limit(5).all()
         category = Category.query.all()
         # sum total expenses
         total_expenses = (
