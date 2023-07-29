@@ -1,0 +1,67 @@
+{% extends "layout.html" %} {% block title %} Index {% endblock %} {% block
+main%}
+<div class="container">
+  <!-- Incomes -->
+  <div class="row bg-body  shadow-sm rounded-3">
+    <div class="col col-lg-12 .col-sm-12">
+      <h3>Incomes</h3>
+      <h4>(Page {{ income.page }})</h4>
+      <table class="table table-striped table-hover">
+        <thead>
+          <tr>
+            <th scope="col">Action</th>
+            <th scope="col">Income</th>
+            <th scope="col">Value</th>
+            <th scope="col">Date</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for income in income %}
+          <tr>
+            <td>
+              <div class="row align-content-center align-items-center">
+                <div class="col-lg-3 col-xxl-2 col-md-3">
+                  <form
+                    method="post"
+                    action="{{ url_for('personalFinance.delete_income', id=income.id) }}"
+                  >
+                    <button
+                      class="btn btn-outline-danger"
+                      type="submit"
+                      name="delete"
+                      value="Delete"
+                    >
+                      <img src="/static/trash.svg" />
+                    </button>
+                  </form>
+                </div>
+                <!-- <div class="col-lg-3 col-xxl-2 col-md-3">
+                        <a
+                          href="{{ url_for('personalFinance.update', id=income.id) }}"
+                        >
+                          <button type="button" class="btn btn-outline-primary">
+                            <img src="static/pencil.svg" />
+                          </button>
+                        </a>
+                      </div> -->
+              </div>
+            </td>
+            <td>
+              <div class="col-lg-3 col-xxl-2 col-md-3">
+                <!-- <a
+                        href="{{ url_for('personalFinance.update', id=income.id) }}"
+                      > -->
+                {{ income.income_type }}
+                <!-- </a> -->
+              </div>
+            </td>
+            <td>+{{ income.value | conv_curr }}</td>
+            <td>{{ income.created_at.strftime('%d-%m-%y')}}</td>
+          </tr>
+          {%endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+  {% endblock %}
+</div>

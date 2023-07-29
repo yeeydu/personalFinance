@@ -115,7 +115,7 @@ def index():
         )
         
         page = request.args.get('page', 1, type=int)
-        pagination = Expenses.query.paginate(page=page, per_page=10)
+        pagination = Expenses.query.paginate(page=page, per_page=7)
         #expenses = Expenses.query.all()
         category = Category.query.all()
         # sum total expenses
@@ -143,10 +143,7 @@ def index():
             total_income=total_income,
             total_expenses=total_expenses,
             balance=balance,
-            # expenses=pagination_expenses,
-            # page=page,
-            # per_page=per_page,
-             pagination=pagination
+            pagination=pagination
         )
 
 # EXPENSES
@@ -244,6 +241,15 @@ def categories():
         return render_template(
             "categories.html", category=category, income_type=income_type
         )
+
+# INCOME
+@personalFinance.route("/income/<int:page_num>",methods=['GET'])
+@login_required
+def income(page_num):
+    page = request.args.get('page', 1, type=int)
+    income = Income.query.paginate(page=page_num, per_page=10, error_out=True)
+    return render_template(
+            "income.html", income=income)
 
 
 # DELETE INCOME METHOD
