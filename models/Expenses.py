@@ -9,8 +9,8 @@ Base = declarative_base()
 # once we create our first record it will create the database
 # expenses_category = db.table(
 #     "expenses_category",
-#     db.Column("expenses_id", db.Integer, db.ForeignKey("expenses.id")),
-#     db.Column("category_id", db.Integer, db.ForeignKey("category.id")),
+#     db.Column('expenses_id', db.Integer, db.ForeignKey('expenses.id')),
+#     db.Column('category_id', db.Integer, db.ForeignKey('category.id')),
 # )#
 
 
@@ -21,7 +21,7 @@ class Expenses(db.Model):
     value = db.Column(db.Numeric(8, 2), nullable=False)
     created_at = db.Column(db.DateTime(timezone=True), server_default=func.now())
     category = db.Column(db.Integer, db.ForeignKey("category.id", ondelete="CASCADE"))
-    #category = db.relationship('Category', secondary=expenses_category, primaryjoin="Expenses.id == Category.expenses_id", backref='expenses') #
+    #category = db.relationship('Category', secondary=expenses_category, backref='category') #
     
     # user = db.relationship("Users", db.ForeignKey="[user.id]")
     # category = db.relationship("Category", backref="expenses")# one to many relation

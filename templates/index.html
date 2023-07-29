@@ -1,7 +1,6 @@
 {% extends "layout.html" %} {% block title %} Index {% endblock %} {% block
 main%}
 <div>
-
   <div class="container mb-5">
     <div class="row">
       <div class="col-lg-3 .col-sm-12">
@@ -11,69 +10,80 @@ main%}
         {% endif %}
         <h5 class="mt-4">Expenses register</h5>
 
-          <!--EXPENSES FORM-->
-          <form action="/" method="post" class="bg-light p-5 shadow-sm">
-            <div class="mb-3">
-              <input
-                autocomplete="off"
-                autofocus
-                class="form-control mx-auto w-auto"
-                id="item"
-                name="item"
-                placeholder="Item"
-                required
-                type="text"
-              />
-            </div>
-            <div class="input-group  mb-3">
-              <select name="category" id="category" class="form-select mx-auto w-auto" required>
-                {% for cat in category %}
-                <option value="{{ cat.id }}">{{ cat.category }}</option>
-                {% endfor %}
-              </select>
-            </div>
-            <div class="mb-3">
-              <input
-                class="form-control mx-auto w-auto"
-                id="value"
-                name="value"
-                placeholder="22.33"
-                step="any"
-                type="number"
-                required
-              />
-            </div>
-            <button class="btn btn-primary" type="submit">Save</button>
-          </form>
-          <h5 class="mt-5">Income register</h5>
+        <!--EXPENSES FORM-->
+        <form action="/" method="post" class="bg-light p-5 shadow-sm">
+          <div class="mb-3">
+            <input
+              autocomplete="off"
+              autofocus
+              class="form-control mx-auto w-auto"
+              id="item"
+              name="item"
+              placeholder="Item"
+              required
+              type="text"
+            />
+          </div>
+          <div class="input-group mb-3">
+            <select
+              name="category"
+              id="category"
+              class="form-select mx-auto w-auto"
+              required
+            >
+              {% for cat in category %}
+              <option value="{{ cat.id }}">{{ cat.category }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="mb-3">
+            <input
+              class="form-control mx-auto w-auto"
+              id="value"
+              name="value"
+              placeholder="22.33"
+              step="any"
+              type="number"
+              required
+            />
+          </div>
+          <button class="btn btn-primary" type="submit">Save</button>
+        </form>
+        <h5 class="mt-5">Income register</h5>
 
-          <!--INCOME FORM-->
-          <form action="/" method="post" class="bg-light p-5 shadow-sm mb-5">
-            <div class="input-group mb-3">
-              <select name="income_type" id="income_type" class="form-select mx-auto w-auto" required>  
-                {% for income in income_type %}
-                <option value="{{ income.id }}">{{ income.income_type }}</option>
-                {% endfor %}
-              </select>
-            </div>
-            <div class="mb-3">
-              <input
-                class="form-control mx-auto w-auto"
-                id="value"
-                name="value"
-                placeholder="1200.00"
-                step="any"
-                type="number"
-                required
-              />
-            </div>
-            <button class="btn btn-primary" type="submit">Save</button>
-          </form>
+        <!--INCOME FORM-->
+        <form action="/" method="post" class="bg-light p-5 shadow-sm mb-5">
+          <div class="input-group mb-3">
+            <select
+              name="income_type"
+              id="income_type"
+              class="form-select mx-auto w-auto"
+              required
+            >
+              {% for income in income_type %}
+              <option value="{{ income.id }}">{{ income.income_type }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="mb-3">
+            <input
+              class="form-control mx-auto w-auto"
+              id="value"
+              name="value"
+              placeholder="1200.00"
+              step="any"
+              type="number"
+              required
+            />
+          </div>
+          <button class="btn btn-primary" type="submit">Save</button>
+        </form>
       </div>
 
       <div class="col-lg-9 .col-sm-12 bg-light p-2 shadow-sm">
-         <!-- Expence -->
-         <h3>Expences</h3>
+        <!-- Expence -->
+        <h3>Expences</h3>
+        <h4>(Page {{ pagination.page }})</h4>
         <table class="table table-striped table-hover">
           <thead>
             <tr>
@@ -85,7 +95,7 @@ main%}
             </tr>
           </thead>
           <tbody>
-            {% for expenses in expenses %}
+            {% for expenses in pagination.items %}
             <tr>
               <td>
                 <div class="row align-content-center align-items-center">
@@ -131,41 +141,59 @@ main%}
             {%endfor %}
           </tbody>
         </table>
-
+        <div class="page-items">
+          {{ pagination.first }} - {{ pagination.last }} of {{ pagination.total
+          }}
+        </div>
+        <div class="pagination">
+          {% for page in pagination.iter_pages() %}
+            {% if page %}
+                {% if page != pagination.page %}
+                  <a href="{{ url_for('personalFinance.expenses', page_num=page) }}">{{ page }}</a>
+                {% else %}
+                    <strong>{{ page }}</strong>
+                {% endif %} 
+            {% else %}
+              <span class="ellipsis">…</span>
+            {% endif %} 
+          {% endfor %}
+        </div>
+         
+         
         <!-- Incomes -->
-        <div class="row bg-body p-1 pt-2 m-1 shadow-sm rounded-3">
-            <div class="col col-lg-7 .col-sm-12">
-              <h3>Incomes</h3>
-              <table class="table table-striped table-hover ">
-                <thead>
-                  <tr>
-                    <th scope="col">Action</th>
-                    <th scope="col">Income</th>
-                    <th scope="col">Value</th>
-                    <th scope="col">Date</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {% for income in income %}
-                  <tr>
-                    <td>
-                      <div class="row align-content-center align-items-center">
-                        <div class="col-lg-3 col-xxl-2 col-md-3">
-                          <form
-                            method="post"
-                            action="{{ url_for('personalFinance.delete_income', id=income.id) }}"
+        <div class="row bg-body p-1 pt-2 mt-4 m-1 shadow-sm rounded-3">
+          <div class="col col-lg-7 .col-sm-12">
+            <h3>Incomes</h3>
+            <table class="table table-striped table-hover">
+              <thead>
+                <tr>
+                  <th scope="col">Action</th>
+                  <th scope="col">Income</th>
+                  <th scope="col">Value</th>
+                  <th scope="col">Date</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for income in income %}
+                <tr>
+                  <td>
+                    <div class="row align-content-center align-items-center">
+                      <div class="col-lg-3 col-xxl-2 col-md-3">
+                        <form
+                          method="post"
+                          action="{{ url_for('personalFinance.delete_income', id=income.id) }}"
+                        >
+                          <button
+                            class="btn btn-outline-danger"
+                            type="submit"
+                            name="delete"
+                            value="Delete"
                           >
-                            <button
-                              class="btn btn-outline-danger"
-                              type="submit"
-                              name="delete"
-                              value="Delete"
-                            >
-                              <img src="static/trash.svg" />
-                            </button>
-                          </form>
-                        </div>
-                        <!-- <div class="col-lg-3 col-xxl-2 col-md-3">
+                            <img src="static/trash.svg" />
+                          </button>
+                        </form>
+                      </div>
+                      <!-- <div class="col-lg-3 col-xxl-2 col-md-3">
                           <a
                             href="{{ url_for('personalFinance.update', id=income.id) }}"
                           >
@@ -174,63 +202,68 @@ main%}
                             </button>
                           </a>
                         </div> -->
-                      </div>
-                    </td>
-                    <td>
-                      <div class="col-lg-3 col-xxl-2 col-md-3">
-                        <!-- <a
+                    </div>
+                  </td>
+                  <td>
+                    <div class="col-lg-3 col-xxl-2 col-md-3">
+                      <!-- <a
                           href="{{ url_for('personalFinance.update', id=income.id) }}"
                         > -->
-                          {{ income.income_type }}
-                        <!-- </a> -->
-                      </div>
-                    </td>
-                    <td>+{{ income.value | conv_curr }}</td>
-                    <td>{{ income.created_at.strftime('%d-%m-%y')}}</td>
-                  </tr>
-                  {%endfor %}
-                </tbody>
-              </table>
-            </div>
-
-              <div class="col col-lg-5 .col-sm-12 ">
-                <h3>Balance</h3>
-                <table class="table table-hover">
-                  <thead>
-                    <tr>
-                      <th scope="col"></th>
-                      <th scope="col">Values</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr>
-                      <td>Income</td>
-                      <td><strong>{{total_income | conv_curr}}</strong></td>
-                    </tr>
-                    <tr>
-                      <td>Expenses</td>
-                      <td><strong>-{{total_expenses | conv_curr}}</strong></td>
-                    </tr>
-                    <tr>
-                      {% if balance<0 %}
-                      <td class="text-danger"> Balance </td>
-                      <td class="text-danger"><strong>{{balance | conv_curr}}</strong></td>
-                      <p class="text-danger">Ohh you spent a lot!</p>
-                      {% elif balance==0 %}
-                      <td class="text-black"> Balance </td>
-                      <td class="text-black"><strong>{{balance | conv_curr}}</strong></td>
-                      <p class="text-black">You need to get some income!</p>
-                      {% else %}
-                      <td class="text-success"> Balance </td>
-                      <td class="text-success"><strong>{{balance | conv_curr}}</strong></td>
-                      <p class="text-success">You have a positive balance!</p>
-                      {% endif %}
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
+                      {{ income.income_type }}
+                      <!-- </a> -->
+                    </div>
+                  </td>
+                  <td>+{{ income.value | conv_curr }}</td>
+                  <td>{{ income.created_at.strftime('%d-%m-%y')}}</td>
+                </tr>
+                {%endfor %}
+              </tbody>
+            </table>
           </div>
-       
+
+          <div class="col col-lg-5 .col-sm-12">
+            <h3>Balance</h3>
+            <table class="table table-hover">
+              <thead>
+                <tr>
+                  <th scope="col"></th>
+                  <th scope="col">Values</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Income</td>
+                  <td><strong>{{total_income | conv_curr}}</strong></td>
+                </tr>
+                <tr>
+                  <td>Expenses</td>
+                  <td><strong>-{{total_expenses | conv_curr}}</strong></td>
+                </tr>
+                <tr>
+                  {% if balance<0 %}
+                  <td class="text-danger">Balance</td>
+                  <td class="text-danger">
+                    <strong>{{balance | conv_curr}}</strong>
+                  </td>
+                  <p class="text-danger">Ohh you spent a lot!</p>
+                  {% elif balance==0 %}
+                  <td class="text-black">Balance</td>
+                  <td class="text-black">
+                    <strong>{{balance | conv_curr}}</strong>
+                  </td>
+                  <p class="text-black">You need to get some income!</p>
+                  {% else %}
+                  <td class="text-success">Balance</td>
+                  <td class="text-success">
+                    <strong>{{balance | conv_curr}}</strong>
+                  </td>
+                  <p class="text-success">You have a positive balance!</p>
+                  {% endif %}
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
       </div>
     </div>
   </div>

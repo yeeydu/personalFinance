@@ -105,7 +105,7 @@ def index():
         # info = Expenses.select(Expenses.item, Expenses.value).where(Expenses.user_id == user_id)
         # expenses = db.session("select * FROM Expenses WHERE expenses.user_id= ?", user_id)
 
-        income = Income.query.all()
+        income = Income.query.limit(5).all()
         income_type = Income_type.query.all()
         # sum total income
         total_income = (
@@ -113,8 +113,10 @@ def index():
             .first()
             .total
         )
-
-        expenses = Expenses.query.all()
+        
+        page = request.args.get('page', 1, type=int)
+        pagination = Expenses.query.paginate(page=page, per_page=10)
+        #expenses = Expenses.query.all()
         category = Category.query.all()
         # sum total expenses
         total_expenses = (
@@ -133,15 +135,28 @@ def index():
 
         return render_template(
             "index.html",
-            expenses=expenses,
+            #expenses=expenses,
             category=category,
             catId=catId,
             income=income,
             income_type=income_type,
             total_income=total_income,
             total_expenses=total_expenses,
-            balance=balance
+            balance=balance,
+            # expenses=pagination_expenses,
+            # page=page,
+            # per_page=per_page,
+             pagination=pagination
         )
+
+# EXPENSES
+@personalFinance.route("/expenses/<int:page_num>",methods=['GET'])
+@login_required
+def expenses(page_num):
+    page = request.args.get('page', 1, type=int)
+    pagination = Expenses.query.paginate(page=page_num, per_page=10, error_out=True)
+    return render_template(
+            "expenses.html", pagination=pagination)
 
 
 # UPDATE EXPENSES METHOD
