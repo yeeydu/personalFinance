@@ -50,13 +50,14 @@ def index():
 
         # Save Expenses
         if category:
-            # category = Category.query.all()
+             
+            print(user_id)
             item = request.form.get("item")
             category = request.form.get("category")
             value = request.form.get("value")
             created_at = datetime.datetime.now()
 
-            newExpence = Expenses(item, category, value, created_at)
+            newExpence = Expenses( user_id, item, category, value , created_at)
             db.session.add(newExpence)
 
             # if no value is selected gives error message
@@ -101,6 +102,7 @@ def index():
 
     else:
         user_id = session["user_id"]
+         
         # user = Expenses.query.filter(Expenses.user_id == user_id).first()
         # info = Expenses.select(Expenses.item, Expenses.value).where(Expenses.user_id == user_id)
         # expenses = db.session("select * FROM Expenses WHERE expenses.user_id= ?", user_id)
@@ -144,6 +146,7 @@ def index():
             total_expenses=total_expenses,
             balance=balance,
             pagination=pagination,
+            user_id=user_id.username
         )
 
 
@@ -367,6 +370,8 @@ def register():
 @login_required
 def dashboard():
     # ...
+
+    user_id = session["user_id"]
     total_income = (
         Income.query.with_entities(func.sum(Income.value).label("total")).first().total
     )
@@ -380,8 +385,12 @@ def dashboard():
     #     Expenses.item,
     #     sqlalchemy.func.count(Expenses.category)
     # ]).group_by(Expenses.category)
+    today = datetime.datetime.now()
 
-    expenses = Expenses.query.filter_by(category=Expenses.category).all()
+    expenses = Expenses.query.filter(db.and_(Expenses.created_at > datetime.date(year=today.year, month=today.month, day=today.day))).order_by(Expenses.category).all()
+    #expenses = Expenses.query.filter(Expenses.created_at == today.month).all()
+    
+    #expenses = Expenses.query.filter().all()
     item = []
     value = []
     category = []
@@ -389,7 +398,7 @@ def dashboard():
         item.append(expense.item)
         value.append(expense.value)
         category.append(expense.category)
-    print(item)
+    print(category)
     return render_template(
         "dashboard.html",
         total_income=(total_income),
@@ -398,6 +407,7 @@ def dashboard():
         item=(item),
         value=(value),
         category=category,
+        user_id=user_id.username
     )
 
 

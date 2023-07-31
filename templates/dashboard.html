@@ -1,13 +1,17 @@
 {% extends "layout.html" %} {% block title %} Dashboard {% endblock %} {% block main%}
 <div class="container mb-5 pb-5">
     <div class="row">
+        {% if session["user_id"] %}
+
+        <h3>Hello {{user_id}}!</h3>
+        {% endif %}
         <h1>Visualize your finances</h1>
-        <div class="col-md-4"><!-- form/results will go here -->
+        <div class="col-md-4 col-sm-4"><!-- form/results will go here -->
             TOTAL
-            <canvas id="totalChart" width="400" height="200"></canvas>
+            <canvas id="totalChart" width="400" height="150"></canvas>
         </div>
-        <div class="col-md-8">
-            <canvas id="expenseChart" width="300" height="150"></canvas>
+        <div class="col-md-8 ">
+            <canvas id="expenseChart" width="300" height="160"></canvas>
         </div>
     </div>
 </div>
@@ -23,10 +27,10 @@
     let income_vs_expense_chart = new Chart(income_vs_expense, {
         type: 'doughnut',
         data: {
-        labels: ['Income', 'Expenses'],
+        labels: ['Income', 'Expenses'],  // bar labels
             datasets: [{
-                label: "Income Vs Expenses",
-                data: [total_in, total_ex],
+                label: "Income Vs Expenses", // title graph
+                data: [total_in, total_ex], // data bar
                 backgroundColor: ['#60BD68 ', '#E16851'],
 
                 borderWidth: 1,
@@ -69,7 +73,7 @@ const expense = document.getElementById('expenseChart');
             datasets: [{
                 label: 'Expenses', // title graph
                 data: value, // data bar
-                backgroundColor: ['#60BD68 ', '#00bfff', '#80ff00', '#E16341', '#8000ff','#ff0080','#ff0000' ,'#ff9000', '#ff90a7', '#5b90a7', '#5b3568'],
+                backgroundColor: ['#60BD68 ', '#00bfff', '#80ff00', '#E16341', '#8000ff',  '#5b3568','#ff0000' ,'#ff9000', '#ff90a7', '#5b90a7','#ff1380'],
 
                 borderWidth: 1,
                 hoverBorderColor: "red",

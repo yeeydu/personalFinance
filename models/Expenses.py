@@ -58,7 +58,8 @@ class Expenses(db.Model):
     category = db.Column(db.Integer, db.ForeignKey("category.id", ondelete="CASCADE"))
 
 
-    def __init__(self, item, category, value, created_at):
+    def __init__(self,users_id , item, category, value, created_at):
+        self.users_id = users_id 
         self.item = item
         self.category = category
         self.value = value
