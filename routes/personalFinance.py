@@ -123,10 +123,10 @@ def index():
         )
 
         # expenses = Expenses.query.limit(5).all()
-        category = Category.query.filter(Income.users_id == user_id.id).all()
+        category = Category.query.filter(Expenses.users_id == user_id.id).all()
         # sum total expenses
         total_expenses = (
-            Expenses.query.filter(Income.users_id == user_id.id)
+            Expenses.query.filter(Expenses.users_id == user_id.id)
             .with_entities(func.sum(Expenses.value).label("total"))
             .first()
             .total
