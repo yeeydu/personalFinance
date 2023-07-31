@@ -51,7 +51,11 @@ main%}
                 <!-- <a
                         href="{{ url_for('personalFinance.update', id=income.id) }}"
                       > -->
-                {{ income.income_type }}
+                      {% for inco in income_type%} 
+                      {% if inco.id == income.income_type %}
+                       {{ inco.income_type}} 
+                      {%endif%} 
+                      {% endfor %}
                 <!-- </a> -->
               </div>
             </td>

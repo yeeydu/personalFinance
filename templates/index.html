@@ -134,7 +134,9 @@ main%}
                   </a>
                 </div>
               </td>
-              <td>{{ expenses.category}}</td>
+              {% for cat in category %} {% if cat.id == expenses.category %}
+              <td>{{ cat.category}}</td>
+              {%endif%} {% endfor %}
               <td>-{{ expenses.value | conv_curr }}</td>
               <td>{{ expenses.created_at.strftime('%d-%m-%y')}}</td>
             </tr>
@@ -146,20 +148,18 @@ main%}
           }}
         </div>
         <div class="pagination">
-          {% for page in pagination.iter_pages() %}
-            {% if page %}
-                {% if page != pagination.page %}
-                  <a href="{{ url_for('personalFinance.index', page=page) }}">{{ page }}</a>
-                {% else %}
-                    <strong>{{ page }}</strong>
-                {% endif %} 
-            {% else %}
-              <span class="ellipsis">…</span>
-            {% endif %} 
-          {% endfor %}
+          {% for page in pagination.iter_pages() %} {% if page %} {% if page !=
+          pagination.page %}
+          <a href="{{ url_for('personalFinance.index', page=page) }}"
+            >{{ page }}</a
+          >
+          {% else %}
+          <strong>{{ page }}</strong>
+          {% endif %} {% else %}
+          <span class="ellipsis">…</span>
+          {% endif %} {% endfor %}
         </div>
-         
-         
+
         <!-- Incomes -->
         <div class="row bg-body p-1 pt-2 mt-4 m-1 shadow-sm rounded-3">
           <div class="col col-lg-7 .col-sm-12">
@@ -209,7 +209,9 @@ main%}
                       <!-- <a
                           href="{{ url_for('personalFinance.update', id=income.id) }}"
                         > -->
-                      {{ income.income_type }}
+                      {% for inco in income_type%} {% if inco.id ==
+                      income.income_type %} {{ inco.income_type}} {%endif%} {%
+                      endfor %}
                       <!-- </a> -->
                     </div>
                   </td>

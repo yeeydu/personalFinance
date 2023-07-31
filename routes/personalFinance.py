@@ -113,10 +113,10 @@ def index():
             .first()
             .total
         )
-        
-        page = request.args.get('page', 1, type=int)
+
+        page = request.args.get("page", 1, type=int)
         pagination = Expenses.query.paginate(page=page, per_page=5)
-        #expenses = Expenses.query.limit(5).all()
+        # expenses = Expenses.query.limit(5).all()
         category = Category.query.all()
         # sum total expenses
         total_expenses = (
@@ -135,7 +135,7 @@ def index():
 
         return render_template(
             "index.html",
-            #expenses=expenses,
+            # expenses=expenses,
             category=category,
             catId=catId,
             income=income,
@@ -143,17 +143,18 @@ def index():
             total_income=total_income,
             total_expenses=total_expenses,
             balance=balance,
-            pagination=pagination
+            pagination=pagination,
         )
 
+
 # EXPENSES
-@personalFinance.route("/expenses/<int:page_num>",methods=['GET'])
+@personalFinance.route("/expenses/<int:page_num>", methods=["GET"])
 @login_required
 def expenses(page_num):
-    page = request.args.get('page', 1, type=int)
+    page = request.args.get("page", 1, type=int)
     pagination = Expenses.query.paginate(page=page_num, per_page=10, error_out=True)
-    return render_template(
-            "expenses.html", pagination=pagination)
+    category = Category.query.all()
+    return render_template("expenses.html", pagination=pagination, category=category)
 
 
 # UPDATE EXPENSES METHOD
@@ -242,14 +243,15 @@ def categories():
             "categories.html", category=category, income_type=income_type
         )
 
+
 # INCOME
-@personalFinance.route("/income/<int:page_num>",methods=['GET'])
+@personalFinance.route("/income/<int:page_num>", methods=["GET"])
 @login_required
 def income(page_num):
-    page = request.args.get('page', 1, type=int)
+    page = request.args.get("page", 1, type=int)
     income = Income.query.paginate(page=page_num, per_page=10, error_out=True)
-    return render_template(
-            "income.html", income=income)
+    income_type = Income_type.query.all()
+    return render_template("income.html", income=income, income_type=income_type)
 
 
 # DELETE INCOME METHOD
@@ -441,10 +443,9 @@ def login():
     else:
         return render_template("login.html")
 
-
-# @personalFinance.route("/password", methods=["GET", "POST"])
-# @login_required
-# def password():
+    # @personalFinance.route("/password", methods=["GET", "POST"])
+    # @login_required
+    # def password():
     """Change password"""
     if request.method == "POST":
         # Ensure passwords are the same
@@ -481,7 +482,7 @@ def login():
             Users.query.filter_by(user).update(dict(password=newPass))
             db.session.commit()
             # sqlalchemy.execute('UPDATE users SET password =? WHERE id = ?', newPass, user_id)
-            
+
             # Flash message of success
             flash("New password register succesfully!")
         except:
