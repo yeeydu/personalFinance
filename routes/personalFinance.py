@@ -57,7 +57,7 @@ def index():
             value = request.form.get("value")
             created_at = datetime.datetime.now()
 
-            newExpence = Expenses( user_id.id, item, category, value , created_at)
+            newExpence = Expenses(user_id.id, item, category, value, created_at)
             db.session.add(newExpence)
 
             # if no value is selected gives error message
@@ -81,7 +81,7 @@ def index():
             value = request.form.get("value")
             created_at = datetime.datetime.now()
 
-            newIncome = Income(user_id.id,income_type, value, created_at)
+            newIncome = Income(user_id.id, income_type, value, created_at)
             db.session.add(newIncome)
 
             # if no value is selected gives error message
@@ -102,28 +102,32 @@ def index():
 
     else:
         user_id = session["user_id"]
-         
+
         # user = Expenses.query.filter(Expenses.user_id == user_id).first()
         # info = Expenses.select(Expenses.item, Expenses.value).where(Expenses.user_id == user_id)
         # expenses = db.session("select * FROM Expenses WHERE expenses.user_id= ?", user_id)
 
-        income = Income.query.filter(Income.users_id==user_id.id).limit(4).all()
+        income = Income.query.filter(Income.users_id == user_id.id).limit(4).all()
         income_type = Income_type.query.all()
         # sum total income
         total_income = (
-            Income.query.filter(Income.users_id==user_id.id).with_entities(func.sum(Income.value).label("total"))
+            Income.query.filter(Income.users_id == user_id.id)
+            .with_entities(func.sum(Income.value).label("total"))
             .first()
             .total
         )
-        #pagination
+        # pagination
         page = request.args.get("page", 1, type=int)
-        pagination = Expenses.query.filter(Expenses.users_id==user_id.id).paginate(page=page, per_page=5)
+        pagination = Expenses.query.filter(Expenses.users_id == user_id.id).paginate(
+            page=page, per_page=5
+        )
 
         # expenses = Expenses.query.limit(5).all()
         category = Category.query.all()
         # sum total expenses
         total_expenses = (
-            Expenses.query.filter(Income.users_id==user_id.id).with_entities(func.sum(Expenses.value).label("total"))
+            Expenses.query.filter(Income.users_id == user_id.id)
+            .with_entities(func.sum(Expenses.value).label("total"))
             .first()
             .total
         )
@@ -147,7 +151,7 @@ def index():
             total_expenses=total_expenses,
             balance=balance,
             pagination=pagination,
-            user_id=user_id.username
+            user_id=user_id.username,
         )
 
 
@@ -157,7 +161,9 @@ def index():
 def expenses(page_num):
     user_id = session["user_id"]
     page = request.args.get("page", 1, type=int)
-    pagination = Expenses.query.filter(Expenses.users_id==user_id.id).paginate(page=page_num, per_page=10, error_out=True)
+    pagination = Expenses.query.filter(Expenses.users_id == user_id.id).paginate(
+        page=page_num, per_page=10, error_out=True
+    )
     category = Category.query.all()
     return render_template("expenses.html", pagination=pagination, category=category)
 
@@ -245,8 +251,8 @@ def categories():
 
     else:
         user_id = session["user_id"]
-        category = Category.query.filter(Income.users_id==user_id.id).all()
-        income_type = Income_type.query.filter(Income.users_id==user_id.id).all()
+        category = Category.query.filter(Income.users_id == user_id.id).all()
+        income_type = Income_type.query.filter(Income.users_id == user_id.id).all()
         return render_template(
             "categories.html", category=category, income_type=income_type
         )
@@ -258,7 +264,9 @@ def categories():
 def income(page_num):
     user_id = session["user_id"]
     page = request.args.get("page", 1, type=int)
-    income = Income.query.filter(Expenses.users_id==user_id.id).paginate(page=page_num, per_page=10, error_out=True)
+    income = Income.query.filter(Expenses.users_id == user_id.id).paginate(
+        page=page_num, per_page=10, error_out=True
+    )
     income_type = Income_type.query.all()
     return render_template("income.html", income=income, income_type=income_type)
 
@@ -377,10 +385,14 @@ def dashboard():
 
     user_id = session["user_id"]
     total_income = (
-        Income.query.filter(Income.users_id==user_id.id).with_entities(func.sum(Income.value).label("total")).first().total
+        Income.query.filter(Income.users_id == user_id.id)
+        .with_entities(func.sum(Income.value).label("total"))
+        .first()
+        .total
     )
     total_expenses = (
-        Expenses.query.filter(Income.users_id==user_id.id).with_entities(func.sum(Expenses.value).label("total"))
+        Expenses.query.filter(Income.users_id == user_id.id)
+        .with_entities(func.sum(Expenses.value).label("total"))
         .first()
         .total
     )
@@ -391,10 +403,20 @@ def dashboard():
     # ]).group_by(Expenses.category)
     today = datetime.datetime.now()
 
-    expenses = Expenses.query.filter(Income.users_id==user_id.id).filter(db.and_(Expenses.created_at > datetime.date(year=today.year, month=today.month, day=today.day))).order_by(Expenses.category).all()
-    #expenses = Expenses.query.filter(Expenses.created_at == today.month).all()
-    
-    #expenses = Expenses.query.filter().all()
+    expenses = (
+        Expenses.query.filter(Income.users_id == user_id.id)
+        .filter(
+            db.and_(
+                Expenses.created_at
+                > datetime.date(year=today.year, month=today.month, day=today.day)
+            )
+        )
+        .order_by(Expenses.category)
+        .all()
+    )
+    # expenses = Expenses.query.filter(Expenses.created_at == today.month).all()
+
+    # expenses = Expenses.query.filter().all()
     item = []
     value = []
     category = []
@@ -411,7 +433,7 @@ def dashboard():
         item=(item),
         value=(value),
         category=category,
-        user_id=user_id.username
+        user_id=user_id.username,
     )
 
 
