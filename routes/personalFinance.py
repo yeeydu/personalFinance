@@ -107,22 +107,23 @@ def index():
         # info = Expenses.select(Expenses.item, Expenses.value).where(Expenses.user_id == user_id)
         # expenses = db.session("select * FROM Expenses WHERE expenses.user_id= ?", user_id)
 
-        income = Income.query.limit(4).all()
+        income = Income.query.filter(Income.users_id==user_id.id).limit(4).all()
         income_type = Income_type.query.all()
         # sum total income
         total_income = (
-            Income.query.with_entities(func.sum(Income.value).label("total"))
+            Income.query.filter(Income.users_id==user_id.id).with_entities(func.sum(Income.value).label("total"))
             .first()
             .total
         )
-
+        #pagination
         page = request.args.get("page", 1, type=int)
-        pagination = Expenses.query.paginate(page=page, per_page=5)
+        pagination = Expenses.query.filter(Expenses.users_id==user_id.id).paginate(page=page, per_page=5)
+
         # expenses = Expenses.query.limit(5).all()
         category = Category.query.all()
         # sum total expenses
         total_expenses = (
-            Expenses.query.with_entities(func.sum(Expenses.value).label("total"))
+            Expenses.query.filter(Income.users_id==user_id.id).with_entities(func.sum(Expenses.value).label("total"))
             .first()
             .total
         )
@@ -154,8 +155,9 @@ def index():
 @personalFinance.route("/expenses/<int:page_num>", methods=["GET"])
 @login_required
 def expenses(page_num):
+    user_id = session["user_id"]
     page = request.args.get("page", 1, type=int)
-    pagination = Expenses.query.paginate(page=page_num, per_page=10, error_out=True)
+    pagination = Expenses.query.filter(Expenses.users_id==user_id.id).paginate(page=page_num, per_page=10, error_out=True)
     category = Category.query.all()
     return render_template("expenses.html", pagination=pagination, category=category)
 
@@ -208,7 +210,7 @@ def categories():
         category = request.form.get("category")
         income_type = request.form.get("income_type")
 
-        # category
+        # category = expenses category
         if category:
             # category = Category(name="Housing")
             # session.add(category)
@@ -226,7 +228,7 @@ def categories():
             # Redirect user to home page
             return redirect("/categories")
 
-        # income type
+        # income type category
         if income_type:
             income_type = request.form.get("income_type")
             newType = Income_type(income_type)
@@ -242,8 +244,9 @@ def categories():
             return redirect("/categories")
 
     else:
-        category = Category.query.all()
-        income_type = Income_type.query.all()
+        user_id = session["user_id"]
+        category = Category.query.filter(Income.users_id==user_id.id).all()
+        income_type = Income_type.query.filter(Income.users_id==user_id.id).all()
         return render_template(
             "categories.html", category=category, income_type=income_type
         )
@@ -253,8 +256,9 @@ def categories():
 @personalFinance.route("/income/<int:page_num>", methods=["GET"])
 @login_required
 def income(page_num):
+    user_id = session["user_id"]
     page = request.args.get("page", 1, type=int)
-    income = Income.query.paginate(page=page_num, per_page=10, error_out=True)
+    income = Income.query.filter(Expenses.users_id==user_id.id).paginate(page=page_num, per_page=10, error_out=True)
     income_type = Income_type.query.all()
     return render_template("income.html", income=income, income_type=income_type)
 
@@ -358,7 +362,7 @@ def register():
         flash("New user register succesfully!")
 
         # Redirect user to home page
-        return redirect("/")
+        return redirect("/login")
 
     # User reached route via GET
     else:
@@ -373,10 +377,10 @@ def dashboard():
 
     user_id = session["user_id"]
     total_income = (
-        Income.query.with_entities(func.sum(Income.value).label("total")).first().total
+        Income.query.filter(Income.users_id==user_id.id).with_entities(func.sum(Income.value).label("total")).first().total
     )
     total_expenses = (
-        Expenses.query.with_entities(func.sum(Expenses.value).label("total"))
+        Expenses.query.filter(Income.users_id==user_id.id).with_entities(func.sum(Expenses.value).label("total"))
         .first()
         .total
     )
@@ -387,7 +391,7 @@ def dashboard():
     # ]).group_by(Expenses.category)
     today = datetime.datetime.now()
 
-    expenses = Expenses.query.filter(db.and_(Expenses.created_at > datetime.date(year=today.year, month=today.month, day=today.day))).order_by(Expenses.category).all()
+    expenses = Expenses.query.filter(Income.users_id==user_id.id).filter(db.and_(Expenses.created_at > datetime.date(year=today.year, month=today.month, day=today.day))).order_by(Expenses.category).all()
     #expenses = Expenses.query.filter(Expenses.created_at == today.month).all()
     
     #expenses = Expenses.query.filter().all()
