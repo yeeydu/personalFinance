@@ -22,7 +22,8 @@ class Income(db.Model):
     # user = db.relationship("Users", ForeignKey="[user_id]")
     # income_type = db.relationship("Income_type", ForeignKey="[income_type]")
 
-    def __init__(self, income_type, value, created_at):
+    def __init__(self, users_id, income_type, value, created_at):
+        self.users_id = users_id
         self.income_type = income_type
         self.value = value
         self.created_at = created_at

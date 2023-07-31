@@ -50,14 +50,14 @@ def index():
 
         # Save Expenses
         if category:
-             
-            print(user_id)
+            user_id = session["user_id"]
+
             item = request.form.get("item")
             category = request.form.get("category")
             value = request.form.get("value")
             created_at = datetime.datetime.now()
 
-            newExpence = Expenses( user_id, item, category, value , created_at)
+            newExpence = Expenses( user_id.id, item, category, value , created_at)
             db.session.add(newExpence)
 
             # if no value is selected gives error message
@@ -75,13 +75,13 @@ def index():
 
         # Save income
         if income_type:
-            # income = Income.query.all()
+            user_id = session["user_id"]
 
             income_type = request.form.get("income_type")
             value = request.form.get("value")
             created_at = datetime.datetime.now()
 
-            newIncome = Income(income_type, value, created_at)
+            newIncome = Income(user_id.id,income_type, value, created_at)
             db.session.add(newIncome)
 
             # if no value is selected gives error message
