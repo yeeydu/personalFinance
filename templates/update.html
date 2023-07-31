@@ -1,25 +1,22 @@
-{% extends "layout.html" %} 
+{% extends "layout.html" %}
 {% block title %} Update {% endblock %}
- {% block main%}
+{% block main%}
 <form action="/update/{{expenses.id}}" method="post">
     <div class="container">
         <div class="row ">
-        <div class="col ">
-            <h5>Update Spences </h5>
-            <div class="mb-3">
-            <input
-                autocomplete="off"
-                autofocus
-                class="form-control mx-auto w-auto"
-                id="item"
-                name="item"
-                value="{{expenses.item}}"
-                required
-                type="text"
-            />
-            </div>
-            <div class="mb-3">
-            <input
+            <div class="col ">
+                <h5>Update Spences </h5>
+                <div class="mb-3">
+                    <input autocomplete="off" autofocus class="form-control mx-auto w-auto" id="item" name="item"
+                        value="{{expenses.item}}" required type="text" />
+                </div>
+                <div class="mb-3">
+                    <select name="category" id="category" class="form-select mx-auto w-auto" required>
+                        {% for cat in category %}
+                        <option value="{{ cat.id }}">{{ cat.category }}</option>
+                        {% endfor %}
+                    </select>
+                    <!-- <input
                 autocomplete="off"
                 autofocus
                 class="form-control mx-auto w-auto"
@@ -27,19 +24,12 @@
                 name="category"
                 value="{{expenses.category}}"
                 type="text"
-            />
-            </div>
-            <div class="mb-3">
-            <input
-                class="form-control mx-auto w-auto"
-                id="value"
-                name="value"
-                value="{{expenses.value}}"
-                step="any"
-                type="number"
-                required
-                />
-            </div>
-            <button class="btn btn-primary" type="submit">Save</button>
-        </form>
+            /> -->
+                </div>
+                <div class="mb-3">
+                    <input class="form-control mx-auto w-auto" id="value" name="value" value="{{expenses.value}}"
+                        step="any" type="number" required />
+                </div>
+                <button class="btn btn-primary" type="submit">Save</button>
+</form>
 {% endblock %}

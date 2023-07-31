@@ -162,6 +162,7 @@ def expenses(page_num):
 @login_required
 def update(id):
     if request.method == "POST":
+        category = Category.query.all()
         expenses = Expenses.query.get(id)
         expenses.item = request.form.get("item")
         expenses.category = request.form.get("category")
@@ -176,8 +177,9 @@ def update(id):
         return redirect("/")
 
     else:
+        category = Category.query.all()
         expenses = Expenses.query.get(id)
-        return render_template("update.html", expenses=expenses)
+        return render_template("update.html", expenses=expenses, category=category)
 
 
 # DELETE EXPENSES METHOD
