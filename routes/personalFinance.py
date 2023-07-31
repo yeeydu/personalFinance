@@ -391,7 +391,7 @@ def dashboard():
         .total
     )
     total_expenses = (
-        Expenses.query.filter(Income.users_id == user_id.id)
+        Expenses.query.filter(Expenses.users_id == user_id.id)
         .with_entities(func.sum(Expenses.value).label("total"))
         .first()
         .total
@@ -412,6 +412,7 @@ def dashboard():
             )
         )
         .order_by(Expenses.category)
+        .filter(Expenses.category)
         .all()
     )
     # expenses = Expenses.query.filter(Expenses.created_at == today.month).all()
