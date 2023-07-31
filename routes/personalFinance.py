@@ -108,7 +108,7 @@ def index():
         # expenses = db.session("select * FROM Expenses WHERE expenses.user_id= ?", user_id)
 
         income = Income.query.filter(Income.users_id == user_id.id).limit(4).all()
-        income_type = Income_type.query.all()
+        income_type = Income_type.query.filter(Income.users_id == user_id.id).all()
         # sum total income
         total_income = (
             Income.query.filter(Income.users_id == user_id.id)
@@ -123,7 +123,7 @@ def index():
         )
 
         # expenses = Expenses.query.limit(5).all()
-        category = Category.query.all()
+        category = Category.query.filter(Income.users_id == user_id.id).all()
         # sum total expenses
         total_expenses = (
             Expenses.query.filter(Income.users_id == user_id.id)

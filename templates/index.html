@@ -26,16 +26,16 @@ main%}
           </div>
           <div class="input-group mb-3">
             <select
-              name="category"
-              id="category"
-              class="form-select mx-auto w-auto"
-              required
+            name="category"
+            id="category"
+            class="form-select mx-auto w-auto"
+            required
             >
-              {% for cat in category %}
-              <option value="{{ cat.id }}">{{ cat.category }}</option>
-              {% endfor %}
-            </select>
-          </div>
+            {% for cat in category %}
+            <option value="{{ cat.id }}">{{ cat.category }}</option>
+            {% endfor %}
+          </select>
+        </div>
           <div class="mb-3">
             <input
               class="form-control mx-auto w-auto"
@@ -95,7 +95,7 @@ main%}
             </tr>
           </thead>
           <tbody>
-            {% for expenses in pagination.items %}
+            {% for expenses in pagination.items | reverse %}
             <tr>
               <td>
                 <div class="row align-content-center align-items-center">
@@ -174,7 +174,7 @@ main%}
                 </tr>
               </thead>
               <tbody>
-                {% for income in income %}
+                {% for income in income | reverse %}
                 <tr>
                   <td>
                     <div class="row align-content-center align-items-center">
