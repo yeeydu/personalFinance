@@ -419,7 +419,11 @@ def dashboard():
         value.append(expense.value)
         category.append(expense.category)
 
-    month_balance = total_income - total_expenses  
+    if total_income is None:
+            total_income = 0
+    if total_expenses is None:
+            total_expenses = 0
+    month_balance = (total_income - total_expenses ) 
 
     # query year expenses for graphic
     allExpenses = Expenses.query.filter(Expenses.users_id == user_id.id).filter(db.and_(Expenses.created_at >= year)).all()
