@@ -17,7 +17,7 @@ from flask_session import Session
 import sqlalchemy
 from models.Expenses import Category, Expenses
 from data.db import db
-from sqlalchemy import Connection, Null, engine_from_config, func, select, text
+from sqlalchemy import Connection, Engine, MetaData, Null, engine_from_config, func, select, text
 from werkzeug.security import generate_password_hash, check_password_hash
 from models.Income import Income, Income_type
 from models.Users import Users
@@ -407,10 +407,13 @@ def dashboard():
     #     Expenses.item,
     #     sqlalchemy.func.count(Expenses.category)
     # ]).group_by(Expenses.category)
-
+    
+    # Write a SQL query using groupby for feature fixe
+    # cat = Expenses.query.filter(Expenses.users_id == user_id.id).filter(db.and_(Expenses.created_at > datetime.date(year=today.year, month=today.month, day=today.day))).with_entities(func.sum(Expenses.value)).group_by(Expenses.category).all()
+    
 
     # query month expenses for graphic
-    expenses = (Expenses.query.filter(Expenses.users_id == user_id.id).filter(db.and_(Expenses.created_at > datetime.date(year=today.year, month=today.month, day=today.day))).order_by(Expenses.category).all())
+    expenses = (Expenses.query.filter(Expenses.users_id == user_id.id).filter(db.and_(Expenses.created_at > datetime.date(year=today.year, month=today.month, day=today.day))).all())
     item = []
     value = []
     category = []
