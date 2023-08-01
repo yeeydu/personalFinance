@@ -401,23 +401,19 @@ def dashboard():
     #     Expenses.item,
     #     sqlalchemy.func.count(Expenses.category)
     # ]).group_by(Expenses.category)
+
+    # expenses = (Expenses.query.filter(Expenses.users_id == user_id.id).filter(db.and_(Expenses.created_at > datetime.date(year=today.year, month=today.month, day=today.day))).order_by(Expenses.category).all())
+    # expenses = Expenses.query.filter(Expenses.users_id == user_id.id).filter(db.and_(Expenses.created_at > datetime.date(year=today.year, month=today.month, day=today.day))).all()
+
+    # Define date
     today = datetime.datetime.now()
+    month = today.month
+    year = today.year
+    print(month)
+    
+    # query month expenses for graphic
+    expenses = Expenses.query.filter(Expenses.users_id == user_id.id).filter(db.and_(Expenses.created_at >= month)).order_by(Expenses.category).all()
 
-    expenses = (
-        Expenses.query.filter(Income.users_id == user_id.id)
-        .filter(
-            db.and_(
-                Expenses.created_at
-                > datetime.date(year=today.year, month=today.month, day=today.day)
-            )
-        )
-        .order_by(Expenses.category)
-        .filter(Expenses.category)
-        .all()
-    )
-    # expenses = Expenses.query.filter(Expenses.created_at == today.month).all()
-
-    # expenses = Expenses.query.filter().all()
     item = []
     value = []
     category = []
