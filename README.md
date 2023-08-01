@@ -5,7 +5,8 @@ A personal finance project made with Flask, SQLAlchemy ORM and Chart.js. A CRUD 
 This is my CS50X Final Project
 
 # PERSONAL FINANCE
-#### Video Demo:  <https://youtu.be/wbyZGFEPH_o>#### Description:
+#### Video Demo:  <https://youtu.be/wbyZGFEPH_o>
+#### Description:
 A Personal Finance Flask Project with MYSQL Database and SQLAlchemy ORM.
 This small software will record all your incomes and expenses, Showing the balance according to the expenses and revenues. It also have a basic Chart to see you finance statistics. 
 Project includes Python, JavaScript and SQL also bootstrap for styling
