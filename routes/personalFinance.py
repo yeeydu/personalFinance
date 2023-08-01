@@ -409,12 +409,8 @@ def dashboard():
     # ]).group_by(Expenses.category)
 
 
-    
-    expenses = (Expenses.query.filter(Expenses.users_id == user_id.id).filter(db.and_(Expenses.created_at > datetime.date(year=today.year, month=today.month, day=today.day))).order_by(Expenses.category).all())
-    
     # query month expenses for graphic
-    #expenses = Expenses.query.filter(Expenses.users_id == user_id.id).filter(db.and_(Expenses.created_at >= month)).all()
-
+    expenses = (Expenses.query.filter(Expenses.users_id == user_id.id).filter(db.and_(Expenses.created_at > datetime.date(year=today.year, month=today.month, day=today.day))).order_by(Expenses.category).all())
     item = []
     value = []
     category = []
@@ -423,7 +419,18 @@ def dashboard():
         value.append(expense.value)
         category.append(expense.category)
 
-    month_balance = total_income - total_expenses    
+    month_balance = total_income - total_expenses  
+
+    # query year expenses for graphic
+    allExpenses = Expenses.query.filter(Expenses.users_id == user_id.id).filter(db.and_(Expenses.created_at >= year)).all()
+    year_item = []
+    year_value = []
+    year_category = []
+    for allExpenses in allExpenses:
+        year_item.append(allExpenses.item)
+        year_value.append(allExpenses.value)
+        year_category.append(allExpenses.category)
+
 
     return render_template(
         "dashboard.html",
@@ -434,7 +441,11 @@ def dashboard():
         value=(value),
         category=category,
         user_id=user_id.username,
-        month_balance=month_balance
+        month_balance=month_balance,
+        allExpenses=allExpenses,
+        year_item=year_item,
+        year_value=year_value,
+        year_category=year_category
     )
 
 

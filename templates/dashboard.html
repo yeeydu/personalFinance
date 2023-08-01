@@ -8,7 +8,7 @@ main%}
     {% endif %}
     <h1>Visualize your finances</h1>
     <p>This is a monthly view graph</p>
-    <div class="col-md-4 col-sm-4">
+    <div class="col-md-3 col-sm-4">
       <!-- form/results will go here -->
       TOTAL
       <canvas id="totalChart" width="300" height="100"></canvas>
@@ -52,9 +52,13 @@ main%}
         </tbody>
       </table>
     </div>
-    <div class="col-md-8">
-      <canvas id="expenseChart" width="300" height="180"></canvas>
+    <div class="col-md-9">
+      <canvas id="expenseChart" width="300" height="150"></canvas>
     </div>
+  </div>
+  <div class="col-md-12 mt-5">
+    Year Expenses
+    <canvas id="allExpenseChart" width="400" height="180"></canvas>
   </div>
 </div>
 
@@ -111,9 +115,9 @@ main%}
           data: {
           labels: item, // bar labels
               datasets: [{
-                  label: 'Expenses', // title graph
+                  label: 'Monthly Expenses', // title graph
                   data: value, // data bar
-                  backgroundColor: ['#60BD68 ', '#00bfff', '#80ff00', '#E16341', '#8000ff',  '#5b3568','#ff0000' ,'#ff9000', '#ff90a7', '#5b90a7','#ff1380'],
+                  backgroundColor: ['#60BD68 ', '#5b3568','#ff0000' , '#00bfff',  '#8000ff',   ,'#ff9000', '#ff90a7', '#5b90a7','#ff1380','#80ff00', '#E16341',],
 
                   borderWidth: 1,
                   hoverBorderColor: "red",
@@ -126,6 +130,50 @@ main%}
                   title: {
                       display: true,
                           text: "Expenses",
+                              fontSize: 20,
+                  },
+                  legend: {
+                      position: "right",
+                          labels: {
+                          fontColor: "gray"
+                      },
+                      display: true,
+                  },
+
+                  elements: {
+                      hitRadius: 3,
+                  }
+          }
+      });
+
+
+
+      const allExpense = document.getElementById('allExpenseChart');
+
+      let  year_item = {{ year_item | tojson }}
+      let  year_value =  {{ year_value | tojson }}
+      let  year_category =  {{ year_category | tojson }}
+
+      let allExpenseChart = new Chart(allExpense, {
+          type: 'bar',
+          data: {
+          labels:  year_item, // bar labels
+              datasets: [{
+                  label: 'All Expenses', // title graph
+                  data:  year_value, // data bar
+                  backgroundColor: ['#60BD68 ', '#00bfff', '#80ff00', '#E16341', '#8000ff',  '#5b3568','#ff0000' ,'#ff9000', '#ff90a7', '#5b90a7','#ff1380'],
+
+                  borderWidth: 1,
+                  hoverBorderColor: "red",
+                  hoverBorderWidth: 1,
+                  hoverBackgroundColor: 'rgba(154, 245, 140)',
+                  pointHoverRadius: 5
+              }],
+          },
+          options: {
+                  title: {
+                      display: true,
+                          text: "All Expenses",
                               fontSize: 20,
                   },
                   legend: {
