@@ -264,7 +264,7 @@ def categories():
 def income(page_num):
     user_id = session["user_id"]
     page = request.args.get("page", 1, type=int)
-    income = Income.query.filter(Expenses.users_id == user_id.id).paginate(
+    income = Income.query.filter(Income.users_id == user_id.id).paginate(
         page=page_num, per_page=10, error_out=True
     )
     income_type = Income_type.query.all()
@@ -384,14 +384,22 @@ def dashboard():
     # ...
 
     user_id = session["user_id"]
+
+    # Define date
+    today = datetime.datetime.now()
+    month = today.month
+    year = today.year
+
+    # total_income per month
     total_income = (
-        Income.query.filter(Income.users_id == user_id.id)
+        Income.query.filter(Income.users_id == user_id.id).filter(db.and_(Income.created_at > datetime.date(year=today.year, month=today.month, day=today.day)))
         .with_entities(func.sum(Income.value).label("total"))
         .first()
         .total
     )
+    # total_expenses per month
     total_expenses = (
-        Expenses.query.filter(Expenses.users_id == user_id.id)
+        Expenses.query.filter(Expenses.users_id == user_id.id).filter(db.and_(Expenses.created_at > datetime.date(year=today.year, month=today.month, day=today.day)))
         .with_entities(func.sum(Expenses.value).label("total"))
         .first()
         .total
@@ -402,17 +410,12 @@ def dashboard():
     #     sqlalchemy.func.count(Expenses.category)
     # ]).group_by(Expenses.category)
 
-    # expenses = (Expenses.query.filter(Expenses.users_id == user_id.id).filter(db.and_(Expenses.created_at > datetime.date(year=today.year, month=today.month, day=today.day))).order_by(Expenses.category).all())
-    # expenses = Expenses.query.filter(Expenses.users_id == user_id.id).filter(db.and_(Expenses.created_at > datetime.date(year=today.year, month=today.month, day=today.day))).all()
 
-    # Define date
-    today = datetime.datetime.now()
-    month = today.month
-    year = today.year
-    print(month)
+    
+    expenses = (Expenses.query.filter(Expenses.users_id == user_id.id).filter(db.and_(Expenses.created_at > datetime.date(year=today.year, month=today.month, day=today.day))).order_by(Expenses.category).all())
     
     # query month expenses for graphic
-    expenses = Expenses.query.filter(Expenses.users_id == user_id.id).filter(db.and_(Expenses.created_at >= month)).order_by(Expenses.category).all()
+    #expenses = Expenses.query.filter(Expenses.users_id == user_id.id).filter(db.and_(Expenses.created_at >= month)).all()
 
     item = []
     value = []
@@ -421,7 +424,7 @@ def dashboard():
         item.append(expense.item)
         value.append(expense.value)
         category.append(expense.category)
-    print(category)
+
     return render_template(
         "dashboard.html",
         total_income=(total_income),
