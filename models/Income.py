@@ -26,10 +26,12 @@ class Income(db.Model):
 
 class Income_type(db.Model):
     id = db.Column(db.Integer, primary_key=True)
+    users_id = db.Column(db.Integer, db.ForeignKey("users.id", ondelete="CASCADE"))
     income_type = db.Column(
         db.String(100), server_default="Salary", nullable=False, default="Salary"
     )
     # income_id = db.Column(db.Integer, db.ForeignKey('income.id'))#
 
-    def __init__(self, income_type):
+    def __init__(self, users_id , income_type):
+        self.users_id = users_id
         self.income_type = income_type

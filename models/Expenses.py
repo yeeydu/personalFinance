@@ -27,11 +27,13 @@ class Expenses(db.Model):
 
 class Category(db.Model):
     id = db.Column(db.Integer, primary_key=True)
+    users_id = db.Column(db.Integer, db.ForeignKey("users.id", ondelete="CASCADE"))
     category = db.Column(
         db.String(100), server_default="Housing", nullable=False, default="Housing"
     )
 
-    def __init__(self, category):
+    def __init__(self, users_id, category):
+        self.users_id = users_id
         self.category = category
 
     # def __repr__(self):

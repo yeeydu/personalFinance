@@ -17,7 +17,16 @@ from flask_session import Session
 import sqlalchemy
 from models.Expenses import Category, Expenses
 from data.db import db
-from sqlalchemy import Connection, Engine, MetaData, Null, engine_from_config, func, select, text
+from sqlalchemy import (
+    Connection,
+    Engine,
+    MetaData,
+    Null,
+    engine_from_config,
+    func,
+    select,
+    text,
+)
 from werkzeug.security import generate_password_hash, check_password_hash
 from models.Income import Income, Income_type
 from models.Users import Users
@@ -41,6 +50,8 @@ def login_required(f):
 
 
 """ ROUTES  """
+
+
 # INDEX
 @personalFinance.route("/", methods=["GET", "POST"])
 @login_required
@@ -106,8 +117,8 @@ def index():
         # expenses = db.session("select * FROM Expenses WHERE expenses.user_id= ?", user_id)
 
         income = Income.query.filter(Income.users_id == user_id.id).limit(4).all()
-        income_type = Income_type.query.filter(Income.users_id == user_id.id).all()
-        
+        income_type = Income_type.query.filter(Income_type.users_id == user_id.id).all()
+
         # sum total income
         total_income = (
             Income.query.filter(Income.users_id == user_id.id)
@@ -122,8 +133,9 @@ def index():
         )
 
         # expenses = Expenses.query.limit(5).all()
-        category = Category.query.filter(Expenses.users_id == user_id.id).all()
-        
+        #category = Category.query.filter(Expenses.users_id == user_id.id).all()
+        category = Category.query.filter(Category.users_id == user_id.id).all()
+
         # sum total expenses
         total_expenses = (
             Expenses.query.filter(Expenses.users_id == user_id.id)
@@ -171,7 +183,8 @@ def expenses(page_num):
 @login_required
 def update(id):
     if request.method == "POST":
-        category = Category.query.all()
+        user_id = session["user_id"]
+        category = Category.query.get(id)
         expenses = Expenses.query.get(id)
         expenses.item = request.form.get("item")
         expenses.category = request.form.get("category")
@@ -216,11 +229,12 @@ def categories():
 
         # category = expenses category
         if category:
+            user_id = session["user_id"]
             # category = Category(name="Housing")
             # session.add(category)
 
             category = request.form.get("category")
-            newCategory = Category(category)
+            newCategory = Category(user_id.id, category)
             db.session.add(newCategory)
 
             if not category:
@@ -234,8 +248,9 @@ def categories():
 
         # income type category
         if income_type:
+            user_id = session["user_id"]
             income_type = request.form.get("income_type")
-            newType = Income_type(income_type)
+            newType = Income_type(user_id.id, income_type)
             db.session.add(newType)
 
             if not income_type:
@@ -249,8 +264,8 @@ def categories():
 
     else:
         user_id = session["user_id"]
-        category = Category.query.filter(Income.users_id == user_id.id).all()
-        income_type = Income_type.query.filter(Income.users_id == user_id.id).all()
+        category = Category.query.filter(Category.users_id == user_id.id).all()
+        income_type = Income_type.query.filter(Income_type.users_id == user_id.id).all()
         return render_template(
             "categories.html", category=category, income_type=income_type
         )
@@ -268,11 +283,13 @@ def income(page_num):
     income_type = Income_type.query.all()
     return render_template("income.html", income=income, income_type=income_type)
 
+
 # to keep it simple with incomes i just create and delete incomes
 # DELETE INCOME METHOD
 @personalFinance.route("/delete_income/<id>", methods=["POST"])
 @login_required
 def delete_income(id):
+    user_id = session["user_id"]
     id = Income.query.get(id)
     db.session.delete(id)
     db.session.commit()
@@ -288,6 +305,7 @@ def delete_income(id):
 @personalFinance.route("/delete_category/<id>", methods=["POST"])
 @login_required
 def delete_category(id):
+    user_id = session["user_id"]
     id = Category.query.get(id)
     db.session.delete(id)
     db.session.commit()
@@ -303,6 +321,7 @@ def delete_category(id):
 @personalFinance.route("/delete_income_type/<id>", methods=["POST"])
 @login_required
 def delete_income_type(id):
+    user_id = session["user_id"]
     id = Income_type.query.get(id)
     db.session.delete(id)
     db.session.commit()
@@ -390,14 +409,26 @@ def dashboard():
 
     # total_income per month
     total_income = (
-        Income.query.filter(Income.users_id == user_id.id).filter(db.and_(Income.created_at > datetime.date(year=today.year, month=today.month, day=today.day)))
+        Income.query.filter(Income.users_id == user_id.id)
+        .filter(
+            db.and_(
+                Income.created_at
+                > datetime.date(year=today.year, month=today.month, day=today.day)
+            )
+        )
         .with_entities(func.sum(Income.value).label("total"))
         .first()
         .total
     )
     # total_expenses per month
     total_expenses = (
-        Expenses.query.filter(Expenses.users_id == user_id.id).filter(db.and_(Expenses.created_at > datetime.date(year=today.year, month=today.month, day=today.day)))
+        Expenses.query.filter(Expenses.users_id == user_id.id)
+        .filter(
+            db.and_(
+                Expenses.created_at
+                > datetime.date(year=today.year, month=today.month, day=today.day)
+            )
+        )
         .with_entities(func.sum(Expenses.value).label("total"))
         .first()
         .total
@@ -407,13 +438,21 @@ def dashboard():
     #     Expenses.item,
     #     sqlalchemy.func.count(Expenses.category)
     # ]).group_by(Expenses.category)
-    
+
     # Write a SQL query using groupby for feature fixe
     # cat = Expenses.query.filter(Expenses.users_id == user_id.id).filter(db.and_(Expenses.created_at > datetime.date(year=today.year, month=today.month, day=today.day))).with_entities(func.sum(Expenses.value)).group_by(Expenses.category).all()
-    
 
     # query month expenses for graphic
-    expenses = (Expenses.query.filter(Expenses.users_id == user_id.id).filter(db.and_(Expenses.created_at > datetime.date(year=today.year, month=today.month, day=today.day))).all())
+    expenses = (
+        Expenses.query.filter(Expenses.users_id == user_id.id)
+        .filter(
+            db.and_(
+                Expenses.created_at
+                > datetime.date(year=today.year, month=today.month, day=today.day)
+            )
+        )
+        .all()
+    )
     item = []
     value = []
     category = []
@@ -423,13 +462,17 @@ def dashboard():
         category.append(expense.category)
 
     if total_income is None:
-            total_income = 0
+        total_income = 0
     if total_expenses is None:
-            total_expenses = 0
-    month_balance = (total_income - total_expenses ) 
+        total_expenses = 0
+    month_balance = total_income - total_expenses
 
     # query year expenses for graphic
-    allExpenses = Expenses.query.filter(Expenses.users_id == user_id.id).filter(db.and_(Expenses.created_at >= year)).all()
+    allExpenses = (
+        Expenses.query.filter(Expenses.users_id == user_id.id)
+        .filter(db.and_(Expenses.created_at >= year))
+        .all()
+    )
     year_item = []
     year_value = []
     year_category = []
@@ -437,7 +480,6 @@ def dashboard():
         year_item.append(allExpenses.item)
         year_value.append(allExpenses.value)
         year_category.append(allExpenses.category)
-
 
     return render_template(
         "dashboard.html",
@@ -452,7 +494,7 @@ def dashboard():
         allExpenses=allExpenses,
         year_item=year_item,
         year_value=year_value,
-        year_category=year_category
+        year_category=year_category,
     )
 
 
@@ -500,10 +542,12 @@ def login():
     else:
         return render_template("login.html")
 
-    # @personalFinance.route("/password", methods=["GET", "POST"])
-    # @login_required
-    # def password():
-    """Change password"""
+
+"""
+@personalFinance.route("/password", methods=["GET", "POST"])
+@login_required
+def password():
+# Change password 
     if request.method == "POST":
         # Ensure passwords are the same
         user_id = session["user_id"]
@@ -552,6 +596,7 @@ def login():
     else:
         user_id = session["user_id"]
         return render_template("password.html")
+"""
 
 
 @personalFinance.route("/logout")
