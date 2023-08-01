@@ -40,7 +40,8 @@ def login_required(f):
     return decorated_function
 
 
-# ROUTES
+""" ROUTES  """
+# INDEX
 @personalFinance.route("/", methods=["GET", "POST"])
 @login_required
 def index():
@@ -102,13 +103,11 @@ def index():
 
     else:
         user_id = session["user_id"]
-
-        # user = Expenses.query.filter(Expenses.user_id == user_id).first()
-        # info = Expenses.select(Expenses.item, Expenses.value).where(Expenses.user_id == user_id)
         # expenses = db.session("select * FROM Expenses WHERE expenses.user_id= ?", user_id)
 
         income = Income.query.filter(Income.users_id == user_id.id).limit(4).all()
         income_type = Income_type.query.filter(Income.users_id == user_id.id).all()
+        
         # sum total income
         total_income = (
             Income.query.filter(Income.users_id == user_id.id)
@@ -124,6 +123,7 @@ def index():
 
         # expenses = Expenses.query.limit(5).all()
         category = Category.query.filter(Expenses.users_id == user_id.id).all()
+        
         # sum total expenses
         total_expenses = (
             Expenses.query.filter(Expenses.users_id == user_id.id)
@@ -132,7 +132,6 @@ def index():
             .total
         )
 
-        catId = Category.query.all()
         # balance
         if total_income is None:
             total_income = 0
@@ -144,7 +143,6 @@ def index():
             "index.html",
             # expenses=expenses,
             category=category,
-            catId=catId,
             income=income,
             income_type=income_type,
             total_income=total_income,
@@ -155,7 +153,7 @@ def index():
         )
 
 
-# EXPENSES
+# EXPENSES LIST PAGE
 @personalFinance.route("/expenses/<int:page_num>", methods=["GET"])
 @login_required
 def expenses(page_num):
@@ -246,7 +244,7 @@ def categories():
 
             db.session.commit()
             flash("Income type added succesfully!")
-            # Redirect user to home page
+            # Redirect user to Categories page
             return redirect("/categories")
 
     else:
@@ -258,7 +256,7 @@ def categories():
         )
 
 
-# INCOME
+# INCOME LIST PAGE
 @personalFinance.route("/income/<int:page_num>", methods=["GET"])
 @login_required
 def income(page_num):
@@ -270,7 +268,7 @@ def income(page_num):
     income_type = Income_type.query.all()
     return render_template("income.html", income=income, income_type=income_type)
 
-
+# to keep it simple with incomes i just create and delete incomes
 # DELETE INCOME METHOD
 @personalFinance.route("/delete_income/<id>", methods=["POST"])
 @login_required
@@ -425,6 +423,8 @@ def dashboard():
         value.append(expense.value)
         category.append(expense.category)
 
+    month_balance = total_income - total_expenses    
+
     return render_template(
         "dashboard.html",
         total_income=(total_income),
@@ -434,6 +434,7 @@ def dashboard():
         value=(value),
         category=category,
         user_id=user_id.username,
+        month_balance=month_balance
     )
 
 

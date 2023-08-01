@@ -1,109 +1,146 @@
-{% extends "layout.html" %} {% block title %} Dashboard {% endblock %} {% block main%}
+{% extends "layout.html" %} {% block title %} Dashboard {% endblock %} {% block
+main%}
 <div class="container mb-5 pb-5">
-    <div class="row">
-        {% if session["user_id"] %}
+  <div class="row">
+    {% if session["user_id"] %}
 
-        <h3>Hello {{user_id}}!</h3>
-        {% endif %}
-        <h1>Visualize your finances</h1>
-        <p>This is a monthly view graph</p>
-        <div class="col-md-4 col-sm-4"><!-- form/results will go here -->
-            TOTAL
-            <canvas id="totalChart" width="400" height="150"></canvas>
-        </div>
-        <div class="col-md-8 ">
-            <canvas id="expenseChart" width="300" height="160"></canvas>
-        </div>
+    <h3>Hello {{user_id}}!</h3>
+    {% endif %}
+    <h1>Visualize your finances</h1>
+    <p>This is a monthly view graph</p>
+    <div class="col-md-4 col-sm-4">
+      <!-- form/results will go here -->
+      TOTAL
+      <canvas id="totalChart" width="300" height="100"></canvas>
+      <table class="table table-hover">
+        <thead>
+          <tr>
+            <th scope="col"></th>
+            <th scope="col"></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="justify-content-center">
+            <td>Income</td>
+            <td><strong>{{total_income | conv_curr}}</strong></td>
+          </tr>
+          <tr class="justify-content-center">
+            <td>Expenses</td>
+            <td><strong>-{{total_expenses | conv_curr}}</strong></td>
+          </tr>
+          <tr class="justify-content-center">
+            {% if month_balance<0 %}
+            <td class="text-danger">Balance</td>
+            <td class="text-danger">
+              <strong>{{month_balance | conv_curr}}</strong>
+            </td>
+            <!-- <p class="text-danger">Ohh you spent a lot!</p> -->
+            {% elif month_balance==0 %}
+            <td class="text-black">Balance</td>
+            <td class="text-black">
+              <strong>{{month_balance | conv_curr}}</strong>
+            </td>
+            <!-- <p class="text-black">You need to get some income!</p> -->
+            {% else %}
+            <td class="text-success">Balance</td>
+            <td class="text-success">
+              <strong>{{month_balance| conv_curr}}</strong>
+            </td>
+            <!-- <p class="text-success">You have a positive balance!</p> -->
+            {% endif %}
+          </tr>
+        </tbody>
+      </table>
     </div>
+    <div class="col-md-8">
+      <canvas id="expenseChart" width="300" height="180"></canvas>
+    </div>
+  </div>
 </div>
-
-
 
 {% block javascripts %}
 <script>
-    const income_vs_expense = document.getElementById('totalChart');
+      const income_vs_expense = document.getElementById('totalChart');
 
-    let total_in = {{ total_income | tojson }}
-    let total_ex =  {{ total_expenses | tojson }}
-    let income_vs_expense_chart = new Chart(income_vs_expense, {
-        type: 'doughnut',
-        data: {
-        labels: ['Income', 'Expenses'],  // bar labels
-            datasets: [{
-                label: "Income Vs Expenses", // title graph
-                data: [total_in, total_ex], // data bar
-                backgroundColor: ['#60BD68 ', '#E16851'],
+      let total_in = {{ total_income | tojson }}
+      let total_ex =  {{ total_expenses | tojson }}
+      let income_vs_expense_chart = new Chart(income_vs_expense, {
+          type: 'doughnut',
+          data: {
+          labels: ['Income', 'Expenses'],  // bar labels
+              datasets: [{
+                  label: "Income Vs Expenses", // title graph
+                  data: [total_in, total_ex], // data bar
+                  backgroundColor: ['#60BD68 ', '#E16851'],
 
-                borderWidth: 1,
-                hoverBorderColor: "green",
-                hoverBorderWidth: 1,
-                hoverBackgroundColor: 'rgba(154, 245, 140)',
-                pointHoverRadius: 5
-            }],
-        },
-        options: {
-                title: {
-                    display: true,
-                        text: "Income Vs Expenses",
-                            fontSize: 20,
-                },
-                legend: {
-                    position: "right",
-                        labels: {
-                        fontColor: "gray"
-                    },
-                    display: true,
-                },
+                  borderWidth: 1,
+                  hoverBorderColor: "green",
+                  hoverBorderWidth: 1,
+                  hoverBackgroundColor: 'rgba(154, 245, 140)',
+                  pointHoverRadius: 5
+              }],
+          },
+          options: {
+                  title: {
+                      display: true,
+                          text: "Income Vs Expenses",
+                              fontSize: 20,
+                  },
+                  legend: {
+                      position: "right",
+                          labels: {
+                          fontColor: "gray"
+                      },
+                      display: true,
+                  },
 
-                elements: {
-                    hitRadius: 3,
-                }
-        }
-    });
+                  elements: {
+                      hitRadius: 3,
+                  }
+          }
+      });
 
-const expense = document.getElementById('expenseChart');
+  const expense = document.getElementById('expenseChart');
 
-    let item = {{ item | tojson }}
-    let value =  {{ value | tojson }}
-    let category =  {{ category | tojson }}
+      let item = {{ item | tojson }}
+      let value =  {{ value | tojson }}
+      let category =  {{ category | tojson }}
 
-    let expense_chart = new Chart(expense, {
-        type: 'bar',
-        data: {
-        labels: item, // bar labels
-            datasets: [{
-                label: 'Expenses', // title graph
-                data: value, // data bar
-                backgroundColor: ['#60BD68 ', '#00bfff', '#80ff00', '#E16341', '#8000ff',  '#5b3568','#ff0000' ,'#ff9000', '#ff90a7', '#5b90a7','#ff1380'],
+      let expense_chart = new Chart(expense, {
+          type: 'bar',
+          data: {
+          labels: item, // bar labels
+              datasets: [{
+                  label: 'Expenses', // title graph
+                  data: value, // data bar
+                  backgroundColor: ['#60BD68 ', '#00bfff', '#80ff00', '#E16341', '#8000ff',  '#5b3568','#ff0000' ,'#ff9000', '#ff90a7', '#5b90a7','#ff1380'],
 
-                borderWidth: 1,
-                hoverBorderColor: "red",
-                hoverBorderWidth: 1,
-                hoverBackgroundColor: 'rgba(154, 245, 140)',
-                pointHoverRadius: 5
-            }],
-        },
-        options: {
-                title: {
-                    display: true,
-                        text: "Expenses",
-                            fontSize: 20,
-                },
-                legend: {
-                    position: "right",
-                        labels: {
-                        fontColor: "gray"
-                    },
-                    display: true,
-                },
+                  borderWidth: 1,
+                  hoverBorderColor: "red",
+                  hoverBorderWidth: 1,
+                  hoverBackgroundColor: 'rgba(154, 245, 140)',
+                  pointHoverRadius: 5
+              }],
+          },
+          options: {
+                  title: {
+                      display: true,
+                          text: "Expenses",
+                              fontSize: 20,
+                  },
+                  legend: {
+                      position: "right",
+                          labels: {
+                          fontColor: "gray"
+                      },
+                      display: true,
+                  },
 
-                elements: {
-                    hitRadius: 3,
-                }
-        }
-    });
+                  elements: {
+                      hitRadius: 3,
+                  }
+          }
+      });
 </script>
-     
-{% endblock %}
 
-{% endblock %}
+{% endblock %} {% endblock %}
