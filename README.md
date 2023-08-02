@@ -7,14 +7,25 @@ This is my CS50X Final Project
 # PERSONAL FINANCE
 #### Video Demo:  <https://youtu.be/wbyZGFEPH_o>
 #### Description:
+
 A Personal Finance Flask Project with MYSQL Database and SQLAlchemy ORM.
 This small software will record all your incomes and expenses, Showing the balance according to the expenses and revenues. A CRUD method for expenses and income, paginations and responsive.
 It also have a basic Chart to see you finance statistics. 
 Project was done with Flask Python framwork, JavaScript and MySQL also bootstrap for styling.
+
 ---
 
-**Project especificativos**
+**Project especifications**
+
 To start the project you will have to create a database in MYSQL called personalFinance. It is set ass root with no password. After that it will only need to start a run the database. 
+
+```bash
+	mysql.server start
+	mysql -u root -p
+	Create database personalFinance
+```
+
+“If you prefer you can set a password and change it in the project .env file” then it will link to the app.py database connection with thouse variables.
 
 `MYSQL_USER` = root
 
@@ -23,18 +34,10 @@ To start the project you will have to create a database in MYSQL called personal
 `MYSQL_DATABASE` = personalFinance
 
 `MYSQL_HOST` = localhost
- 
-
-“If you prefer you can set a password and change it in the project .env file” then it will link to the app.py database connection with thouse variables.
-
-```bash
-	mysql.server start
-	mysql -u root -p
-	Create database personalFinance
-```
 
 **The project includes a requirement.txt file.**
- A requirements file is documenting what Python packages are required to run the project. It will later on be used by Docker for instance to install these dependencies and ensure our application will run smoothly upon deployement with:
+
+A requirements file is documenting what Python packages are required to run the project. It will later on be used by Docker for instance to install these dependencies and ensure our application will run smoothly upon deployement with:
 
 	pip install -r requirements.txt
 
@@ -48,6 +51,7 @@ To start the project you will have to create a database in MYSQL called personal
 ```
 
 **Run Project**
+
 To run the project you will have to create and environment and activate it
 ```bash
 	python3 -m venv .venv
@@ -55,6 +59,7 @@ To run the project you will have to create and environment and activate it
 ```
 
 **SQLAlchemy**
+
 The SQLAlchemy - create_all()  in index.py will create all tables for the project configured in the models folder. 
 Because it was set in index.py you will have to run:
 
@@ -63,9 +68,11 @@ Because it was set in index.py you will have to run:
 ```
 
 **Main file**
+
 There’s is personalFinance.py file in the routes folder that contains all routes and logic for the application.
 
 **Info**
+
 If flask project takes long and shows HTTP ERROR 403
 clearing browser cookies solves the problem.
 
@@ -90,7 +97,7 @@ clearing browser cookies solves the problem.
 
 ## Screenshots
 
-![App Screenshot](<img src="/static/thumb.png" alt="example" title="example">)
+![App Screenshot](<img src="static/thumb.png" alt="example" title="example">)
 
 ## 🔗 Links
 [![portfolio](https://img.shields.io/badge/my_portfolio-000?style=for-the-badge&logo=ko-fi&logoColor=white)](https://yeeysonduarte.vercel.app/)
