@@ -97,7 +97,7 @@ clearing browser cookies solves the problem.
 
 ## Screenshots
 
-![App Screenshot](<img src="static/thumb.png" alt="example" title="example">)
+![App Screenshot](<https://github.com/yeeydu/personalFinance/blob/master/static/thumb.png?raw=true">)
 
 ## 🔗 Links
 [![portfolio](https://img.shields.io/badge/my_portfolio-000?style=for-the-badge&logo=ko-fi&logoColor=white)](https://yeeysonduarte.vercel.app/)
